@@ -62,14 +62,11 @@ const ContactForm = () => {
       formSubmitData.append("_subject", "New portfolio contact!");
       formSubmitData.append("_captcha", "false");
 
-      // Send the data to FormSubmit.io
-      const response = await fetch(
-        "https://formsubmit.co/canaandelossantos@gmail.com",
-        {
-          method: "POST",
-          body: formSubmitData,
-        }
-      );
+      // Send the data to FormSubmit.io with the new email address
+      const response = await fetch("https://formsubmit.co/Ben@BenSimon.com", {
+        method: "POST",
+        body: formSubmitData,
+      });
 
       if (response.ok) {
         setSubmitStatus("success");
@@ -285,7 +282,7 @@ const ContactForm = () => {
 
             <div className="hidden md:block md:w-1/2">
               <img
-                src="/images/Benjamin Simon - 290 - Contact.jpg"
+                src="https://res.cloudinary.com/dbvdsg784/image/upload/v1743912092/Benjamin_Simon_-_290_-_Contact_lcpdr2.jpg"
                 alt="Ben Simon"
                 className="w-full h-full object-cover"
               />

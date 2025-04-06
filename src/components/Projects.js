@@ -150,13 +150,13 @@ const Projects = () => {
       title: "Poison Ink",
       image:
         "https://res.cloudinary.com/dbvdsg784/image/upload/v1743916223/poisonink.proj1_ukvsgi.png",
-      role: "Paul Cooper",
+      role: "Tyler",
       director: "Chan Chan",
       production: "Written by Jacq Jax",
       year: "2023",
       description:
         "Cruel words are nothing more than ink on paper, or are they? A short film shot in Melbourne Victoria, Australia.",
-      videoLink: "https://example.com/video1",
+      videoLink: "https://vimeo.com/984699219",
     },
     {
       id: 2,
@@ -165,10 +165,10 @@ const Projects = () => {
         "https://res.cloudinary.com/dbvdsg784/image/upload/v1743912095/Proj_NNT_wq0xro.png",
       role: "Actor",
       director: "John Doe",
-      production: "ABC Films",
+      production: "ofthesaints Media Co",
       year: "2023",
       description: "An advertisement for NNT Active Wear Scrubs.",
-      videoLink: "https://example.com/video2",
+      videoLink: "https://www.instagram.com/p/C3bX5S6pwtB/",
     },
   ];
 
