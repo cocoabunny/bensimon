@@ -85,7 +85,7 @@ const ProjectItem = ({ project, isEven }) => {
       <div
         className={`md:w-1/2 ${
           isEven ? "md:pr-8" : "md:pl-8"
-        } flex flex-col justify-center`}
+        } flex flex-col justify-center text-white`}
       >
         <ul className="list-disc list-inside mb-6 space-y-2">
           <li>
@@ -106,7 +106,7 @@ const ProjectItem = ({ project, isEven }) => {
           href={project.videoLink}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-block bg-[#282c34] text-white py-2 px-6 rounded hover:bg-gray-800 transition-colors w-max"
+          className="inline-block bg-white text-[#282c34] py-2 px-6 rounded hover:bg-gray-200 transition-colors w-max font-medium"
         >
           Watch Now
         </a>
@@ -155,7 +155,7 @@ const Projects = () => {
       production: "Written by Jacq Jax",
       year: "2023",
       description:
-        "Cruel words are nothing more than ink on paper, or are they? A short film shot in Melbourne Victoria, Australia.",
+        "I played the lead role of Tyler in Poison Ink, a short film shot in Melbourne, Victoria. The story centers on the paralyzing grip of writer’s block—not just the creative silence, but the self-doubt and emotional unraveling that come with it. As Tyler, I embodied a writer teetering between inspiration and inner chaos, where every word left unwritten becomes a kind of poison. It was a powerful, introspective role that challenged me to communicate tension and vulnerability through subtle, internalized performance. Poison Ink is a poetic exploration of what happens when the mind turns against the page—and I’m proud to have brought that struggle to life.",
       videoLink: "https://vimeo.com/984699219",
     },
     {
@@ -163,19 +163,20 @@ const Projects = () => {
       title: "NNT Scrubs",
       image:
         "https://res.cloudinary.com/dbvdsg784/image/upload/v1743912095/Proj_NNT_wq0xro.png",
-      role: "Actor",
+      role: "Rock Climbing Feature Shoot",
       director: "John Doe",
       production: "ofthesaints Media Co",
       year: "2023",
-      description: "An advertisement for NNT Active Wear Scrubs.",
+      description:
+        "I recently had the opportunity to model for NNT Active Wear Scrubs in a campaign that combined two things I’m passionate about: movement and functionality. The shoot took place on a bouldering set, where I was able to showcase just how flexible, durable, and performance-ready these scrubs really are. Climbing in workwear might sound unusual, but NNT’s active range is designed for professionals who stay on the move—and it held up beautifully under pressure. It was an awesome blend of style, strength, and action.",
       videoLink: "https://www.instagram.com/p/C3bX5S6pwtB/",
     },
   ];
 
   return (
-    <div className="py-16 bg-gray-100" ref={componentRef}>
+    <div className="py-16 bg-[#282c34] text-white" ref={componentRef}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-4xl md:text-5xl font-bold text-center mb-16">
+        <h2 className="text-4xl md:text-5xl font-bold text-center mb-16 text-white">
           Past Work
         </h2>
         {isInViewport && (

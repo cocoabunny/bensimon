@@ -243,7 +243,7 @@ const Headshots = () => {
       <div className="relative w-full max-w-7xl mx-auto">
         <button
           onClick={prevSlide}
-          className="absolute left-0 top-1/2 -translate-y-1/2 text-black p-3 hover:opacity-70 transition z-10"
+          className="absolute left-0 top-1/2 -translate-y-1/2 text-white p-3 hover:opacity-70 transition z-10"
           aria-label="Previous slide"
           disabled={transitioning}
         >
@@ -281,7 +281,7 @@ const Headshots = () => {
 
         <button
           onClick={nextSlide}
-          className="absolute right-0 top-1/2 -translate-y-1/2 text-black p-3 hover:opacity-70 transition z-10"
+          className="absolute right-0 top-1/2 -translate-y-1/2 text-white p-3 hover:opacity-70 transition z-10"
           aria-label="Next slide"
           disabled={transitioning}
         >
@@ -292,7 +292,10 @@ const Headshots = () => {
   };
 
   return (
-    <div className="py-8 md:py-16 relative" ref={componentRef}>
+    <div
+      className="py-8 md:py-16 relative bg-[#282c34] text-white"
+      ref={componentRef}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {!isDesktop && (
           <div className="bg-transparent">{renderMobileView()}</div>
@@ -300,7 +303,7 @@ const Headshots = () => {
 
         {isDesktop && (
           <>
-            <h2 className="text-4xl md:text-5xl font-bold text-center mb-8 md:mb-12">
+            <h2 className="text-4xl md:text-5xl font-bold text-center mb-8 md:mb-12 text-white">
               Headshots
             </h2>
             {renderDesktopView()}

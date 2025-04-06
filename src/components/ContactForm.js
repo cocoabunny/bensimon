@@ -157,13 +157,13 @@ const ContactForm = () => {
   };
 
   return (
-    <div id="contact" className="py-16 bg-[#e9eaed]">
+    <div id="contact" className="py-16 bg-[#282c34]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-4xl md:text-5xl font-bold text-center mb-4 text-[#282c34]">
+        <h2 className="text-4xl md:text-5xl font-bold text-center mb-4 text-white">
           Let's Work Together
         </h2>
 
-        <div className="mt-12 bg-[#f0f1f4] rounded-lg shadow-lg overflow-hidden">
+        <div className="mt-12 bg-white rounded-lg shadow-lg overflow-hidden">
           <div className="md:flex">
             <div className="md:w-1/2 p-8">
               <form onSubmit={handleSubmit}>
@@ -234,7 +234,7 @@ const ContactForm = () => {
                       name="ideas"
                       value={formData.ideas}
                       onChange={handleChange}
-                      className="w-full mt-4 bg-[#e9eaed] border border-[#90949f] rounded p-3 text-[#282c34] focus:outline-none transition-all duration-300 ease-in-out"
+                      className="w-full mt-4 bg-[#e9eaed] border border-[#282c34] rounded p-3 text-[#282c34] focus:outline-none transition-all duration-300 ease-in-out"
                       rows="4"
                       maxLength="1000"
                     ></textarea>
@@ -263,7 +263,7 @@ const ContactForm = () => {
                       name="heardFrom"
                       value={formData.heardFrom}
                       onChange={handleChange}
-                      className="w-full mt-4 bg-[#e9eaed] border border-[#90949f] rounded p-3 text-[#282c34] focus:outline-none transition-all duration-300 ease-in-out"
+                      className="w-full mt-4 bg-[#e9eaed] border border-[#282c34] rounded p-3 text-[#282c34] focus:outline-none transition-all duration-300 ease-in-out"
                       rows="4"
                       maxLength="1000"
                     ></textarea>
