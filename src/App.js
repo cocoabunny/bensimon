@@ -6,6 +6,7 @@ import Projects from "./components/Projects";
 import ContactForm from "./components/ContactForm";
 import Footer from "./components/Footer";
 import Modal from "./components/Modal";
+import { SpeedInsights } from "@vercel/speed-insights/react"; // Import the component
 
 function App() {
   const [selectedImage, setSelectedImage] = useState(null);
@@ -26,6 +27,7 @@ function App() {
       <Projects />
       <ContactForm />
       <Footer />
+      <SpeedInsights />
       {selectedImage && <Modal image={selectedImage} onClose={closeModal} />}
     </div>
   );
