@@ -94,10 +94,14 @@ const Navbar = () => {
               <FaInstagram size={20} />
               <span>Instagram</span>
             </a>
-            <a>
-              href="https://www.tiktok.com" target="_blank" rel="noopener
-              noreferrer" className="flex items-center space-x-2 text-white
-              font-light hover:text-white transition duration-300" >
+            <a
+              href="https://www.tiktok.com"
+              target="_blank"
+              rel="noopener
+              noreferrer"
+              className="flex items-center space-x-2 text-white
+              font-light hover:text-white transition duration-300"
+            >
               <FaTiktok size={20} />
               <span>TikTok</span>
             </a>

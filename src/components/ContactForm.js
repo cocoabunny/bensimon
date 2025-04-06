@@ -112,7 +112,7 @@ const ContactForm = () => {
                     d="M5 13l4 4L19 7"
                   ></path>
                 </svg>
-                <h3 className="text-xl font-bold mb-2 text-[#282c34]">
+                <h3 className="text-xl font-bold mb-2 text-[#0c0f14]">
                   Thank You!
                 </h3>
                 <p className="text-[#4a4f5c] mb-6">
@@ -136,7 +136,7 @@ const ContactForm = () => {
                     d="M6 18L18 6M6 6l12 12"
                   ></path>
                 </svg>
-                <h3 className="text-xl font-bold mb-2 text-[#282c34]">
+                <h3 className="text-xl font-bold mb-2 text-[#0c0f14]">
                   Something Went Wrong
                 </h3>
                 <p className="text-[#4a4f5c] mb-6">
@@ -146,7 +146,7 @@ const ContactForm = () => {
             )}
             <button
               onClick={closeModal}
-              className="bg-[#282c34] text-white py-2 px-6 rounded hover:bg-[#3e4451] transition-colors"
+              className="bg-[#0c0f14] text-white py-2 px-6 rounded hover:bg-[#3e4451] transition-colors"
             >
               Close
             </button>
@@ -157,7 +157,7 @@ const ContactForm = () => {
   };
 
   return (
-    <div id="contact" className="py-16 bg-[#282c34]">
+    <div id="contact" className="py-16 bg-[#0c0f14]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 className="text-4xl md:text-5xl font-bold text-center mb-4 text-white">
           Let's Work Together
@@ -185,7 +185,7 @@ const ContactForm = () => {
                     onChange={handleChange}
                     placeholder="Full Name*"
                     required
-                    className="w-full bg-transparent border-b-2 border-[#282c34] px-3 py-2 text-[#282c34] focus:outline-none"
+                    className="w-full bg-transparent border-b-2 border-[#0c0f14] px-3 py-2 text-[#282c34] focus:outline-none"
                   />
                 </div>
 
@@ -197,7 +197,7 @@ const ContactForm = () => {
                     onChange={handleChange}
                     placeholder="Email*"
                     required
-                    className="w-full bg-transparent border-b-2 border-[#282c34] px-3 py-2 text-[#282c34] focus:outline-none"
+                    className="w-full bg-transparent border-b-2 border-[#0c0f14] px-3 py-2 text-[#282c34] focus:outline-none"
                   />
                 </div>
 
@@ -208,18 +208,18 @@ const ContactForm = () => {
                     value={formData.website}
                     onChange={handleChange}
                     placeholder="Affiliated Website"
-                    className="w-full bg-transparent border-b-2 border-[#282c34] px-3 py-2 text-[#282c34] focus:outline-none"
+                    className="w-full bg-transparent border-b-2 border-[#0c0f14] px-3 py-2 text-[#282c34] focus:outline-none"
                   />
                 </div>
 
                 <div className="mb-6">
                   <div
                     onClick={() => toggleExpand("ideas")}
-                    className="w-full bg-transparent border-b-2 border-[#282c34] px-3 py-2 text-[#282c34] cursor-pointer flex justify-between items-center"
+                    className="w-full bg-transparent border-b-2 border-[#0c0f14] px-3 py-2 text-[#282c34] cursor-pointer flex justify-between items-center"
                   >
                     <span
                       className={
-                        formData.ideas ? "text-[#282c34]" : "text-[#6a7085]"
+                        formData.ideas ? "text-[#0c0f14]" : "text-[#6a7085]"
                       }
                     >
                       {formData.ideas || "Tell me about your ideas"}
@@ -244,11 +244,11 @@ const ContactForm = () => {
                 <div className="mb-6">
                   <div
                     onClick={() => toggleExpand("heardFrom")}
-                    className="w-full bg-transparent border-b-2 border-[#282c34] px-3 py-2 text-[#282c34] cursor-pointer flex justify-between items-center"
+                    className="w-full bg-transparent border-b-2 border-[#0c0f14] px-3 py-2 text-[#282c34] cursor-pointer flex justify-between items-center"
                   >
                     <span
                       className={
-                        formData.heardFrom ? "text-[#282c34]" : "text-[#6a7085]"
+                        formData.heardFrom ? "text-[#0c0f14]" : "text-[#6a7085]"
                       }
                     >
                       {formData.heardFrom || "How did you hear about me?"}
@@ -263,7 +263,7 @@ const ContactForm = () => {
                       name="heardFrom"
                       value={formData.heardFrom}
                       onChange={handleChange}
-                      className="w-full mt-4 bg-[#e9eaed] border border-[#282c34] rounded p-3 text-[#282c34] focus:outline-none transition-all duration-300 ease-in-out"
+                      className="w-full mt-4 bg-[#e9eaed] border border-[#0c0f14] rounded p-3 text-[#282c34] focus:outline-none transition-all duration-300 ease-in-out"
                       rows="4"
                       maxLength="1000"
                     ></textarea>

@@ -4,6 +4,7 @@ const HeroBanner = () => {
   const videoRef = useRef(null);
   const [isMuted, setIsMuted] = useState(true);
   const [showControl, setShowControl] = useState(false);
+  const [showEndText, setShowEndText] = useState(false);
   const cloudinaryUrl =
     "https://res.cloudinary.com/dbvdsg784/video/upload/q_auto,f_auto/v1743912145/hero-video_er3cen.mp4";
 
@@ -36,22 +37,39 @@ const HeroBanner = () => {
           });
       }
 
-      // Add event listener for when the video loops
-      const handleLoop = () => {
-        // Check if the currentTime is very small, indicating a loop
-        if (videoElement.currentTime < 0.1) {
+      // Function to handle video timing for end animation
+      const handleTimeUpdate = () => {
+        // Get video duration and current time
+        const duration = videoElement.duration;
+        const currentTime = videoElement.currentTime;
+
+        // Show the text during the last 8 seconds
+        if (duration - currentTime <= 8) {
+          setShowEndText(true);
+        } else {
+          setShowEndText(false);
+        }
+
+        // Check if the video has looped (currentTime very small)
+        if (currentTime < 0.1) {
           videoElement.muted = true;
           setIsMuted(true);
+          setShowEndText(false); // Hide text when video loops
         }
       };
 
-      // Use timeupdate event to detect when video loops
-      videoElement.addEventListener("timeupdate", handleLoop);
+      // Use timeupdate event to track video progress
+      videoElement.addEventListener("timeupdate", handleTimeUpdate);
+
+      // Get video metadata to know the duration
+      videoElement.addEventListener("loadedmetadata", () => {
+        console.log("Video duration:", videoElement.duration);
+      });
 
       // Cleanup function
       return () => {
         if (videoElement) {
-          videoElement.removeEventListener("timeupdate", handleLoop);
+          videoElement.removeEventListener("timeupdate", handleTimeUpdate);
           videoElement.pause();
         }
       };
@@ -63,6 +81,14 @@ const HeroBanner = () => {
       const newMutedState = !isMuted;
       videoRef.current.muted = newMutedState;
       setIsMuted(newMutedState);
+    }
+  };
+
+  const scrollToContact = () => {
+    // Scroll to contact form
+    const contactForm = document.getElementById("contact");
+    if (contactForm) {
+      contactForm.scrollIntoView({ behavior: "smooth" });
     }
   };
 
@@ -80,6 +106,44 @@ const HeroBanner = () => {
         playsInline
         preload="auto"
       />
+
+      {/* Black overlay that appears during end animation - now fully black */}
+      <div
+        className={`absolute top-0 left-0 w-full h-full bg-black transition-opacity duration-1000 ${
+          showEndText ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
+      />
+
+      {/* End Text Animation - Stacked and staggered text */}
+      <div
+        className={`absolute top-32 md:top-1/3 left-1/2 transform -translate-x-1/2
+                    text-center transition-opacity duration-700 w-full px-4 ${
+                      showEndText
+                        ? "opacity-100"
+                        : "opacity-0 pointer-events-none"
+                    }`}
+      >
+        <button
+          onClick={scrollToContact}
+          className="bg-transparent border-none p-0 cursor-pointer focus:outline-none"
+          aria-label="Go to contact form"
+        >
+          <div className="flex flex-col items-center">
+            <h1
+              className="text-white font-normal text-center
+                       text-5xl md:text-6xl tracking-wide italic mb-3"
+            >
+              Dear Henry,
+            </h1>
+            <p
+              className="text-white font-normal text-center
+                        text-3xl md:text-4xl tracking-wide ml-8"
+            >
+              Click me
+            </p>
+          </div>
+        </button>
+      </div>
 
       {/* Sound Toggle Button */}
       {showControl && (

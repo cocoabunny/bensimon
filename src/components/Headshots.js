@@ -293,7 +293,7 @@ const Headshots = () => {
 
   return (
     <div
-      className="py-8 md:py-16 relative bg-[#282c34] text-white"
+      className="py-8 md:py-16 relative bg-[#0c0f14] text-white"
       ref={componentRef}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
