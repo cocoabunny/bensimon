@@ -5,37 +5,37 @@ import Modal from "./Modal";
 const headshots = [
   {
     id: 1,
-    src: "/images/Benjamin Simon - 017 - Full.jpg",
+    src: "https://res.cloudinary.com/dbvdsg784/image/upload/v1743912089/Benjamin_Simon_-_017_-_Full_sqjqlg.jpg",
     orientation: "portrait",
   },
   {
     id: 2,
-    src: "/images/Benjamin Simon - 086 - Full.jpg",
+    src: "https://res.cloudinary.com/dbvdsg784/image/upload/v1743912090/Benjamin_Simon_-_086_-_Full_ctijcl.jpg",
     orientation: "landscape",
   },
   {
     id: 3,
-    src: "/images/Benjamin Simon - 121 - Full.jpg",
+    src: "https://res.cloudinary.com/dbvdsg784/image/upload/v1743912089/Benjamin_Simon_-_121_-_Full_lot7uz.jpg",
     orientation: "landscape",
   },
   {
     id: 4,
-    src: "/images/Benjamin Simon - 182.jpg",
+    src: "https://res.cloudinary.com/dbvdsg784/image/upload/v1743912093/Benjamin_Simon_-_182_lxbwn9.jpg",
     orientation: "portrait",
   },
   {
     id: 5,
-    src: "/images/Benjamin Simon - 187.jpg",
+    src: "https://res.cloudinary.com/dbvdsg784/image/upload/v1743912091/Benjamin_Simon_-_187_zeohby.jpg",
     orientation: "portrait",
   },
   {
     id: 6,
-    src: "/images/Benjamin Simon - 226 - Full.jpg",
+    src: "https://res.cloudinary.com/dbvdsg784/image/upload/v1743912091/Benjamin_Simon_-_226_-_Full_pwwnl0.jpg",
     orientation: "landscape",
   },
   {
     id: 7,
-    src: "/images/Benjamin Simon - 303.jpg",
+    src: "https://res.cloudinary.com/dbvdsg784/image/upload/v1743912094/Benjamin_Simon_-_303_udfmj6.jpg",
     orientation: "portrait",
   },
 ];
@@ -46,8 +46,10 @@ const Headshots = () => {
   const [transitioning, setTransitioning] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
   const [imagesLoaded, setImagesLoaded] = useState({});
-  const observerRef = useRef(null);
+  const [isInViewport, setIsInViewport] = useState(false);
+  const componentRef = useRef(null);
   const imageRefs = useRef([]);
+  const observerRef = useRef(null);
 
   // Check if we're on desktop or mobile
   useEffect(() => {
@@ -58,6 +60,30 @@ const Headshots = () => {
     checkViewport();
     window.addEventListener("resize", checkViewport);
     return () => window.removeEventListener("resize", checkViewport);
+  }, []);
+
+  // Check if component is in viewport
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsInViewport(entry.isIntersecting);
+      },
+      { threshold: 0.1 }
+    );
+
+    // Store the current ref value
+    const currentRef = componentRef.current;
+
+    if (currentRef) {
+      observer.observe(currentRef);
+    }
+
+    return () => {
+      // Use the stored reference in the cleanup function
+      if (currentRef) {
+        observer.unobserve(currentRef);
+      }
+    };
   }, []);
 
   // Calculate how many images to show based on viewport
@@ -88,10 +114,21 @@ const Headshots = () => {
             const imgElement = entry.target;
             const imgSrc = imgElement.getAttribute("data-src");
             if (imgSrc) {
-              imgElement.src = imgSrc;
-              imgElement.removeAttribute("data-src");
-              setImagesLoaded((prev) => ({ ...prev, [imgSrc]: true }));
-              observerRef.current.unobserve(imgElement);
+              // Create a new image object to preload
+              const img = new Image();
+              img.onload = () => {
+                // Once image is loaded, update the src and mark as loaded
+                imgElement.src = imgSrc;
+                imgElement.removeAttribute("data-src");
+                setImagesLoaded((prev) => ({ ...prev, [imgSrc]: true }));
+              };
+              img.src = imgSrc;
+
+              // Store current observer reference
+              const currentObserver = observerRef.current;
+              if (currentObserver) {
+                currentObserver.unobserve(imgElement);
+              }
             }
           }
         });
@@ -99,47 +136,63 @@ const Headshots = () => {
       { rootMargin: "200px 0px" }
     );
 
+    // Store current observer for cleanup
+    const currentObserver = observerRef.current;
+
     return () => {
-      if (observerRef.current) {
-        observerRef.current.disconnect();
+      if (currentObserver) {
+        currentObserver.disconnect();
       }
     };
   }, []);
 
-  // Handle lazy loading for gallery images
+  // Load visible images when component enters viewport
   useEffect(() => {
-    // Store a reference to current images at the time this effect runs
-    const currentImageRefs = [...imageRefs.current];
+    if (isInViewport) {
+      const startIndex = currentIndex;
+      const endIndex = isDesktop
+        ? (currentIndex + imagesPerView) % headshots.length
+        : currentIndex;
 
-    currentImageRefs.forEach((img) => {
-      if (img && observerRef.current) {
-        observerRef.current.observe(img);
+      // Get visible images based on current view
+      const visibleImageRefs = [];
+      for (let i = 0; i <= endIndex - startIndex; i++) {
+        const idx = (startIndex + i) % headshots.length;
+        if (imageRefs.current[idx]) {
+          visibleImageRefs.push(imageRefs.current[idx]);
+        }
       }
-    });
 
-    return () => {
-      if (observerRef.current) {
-        // Use the stored reference in cleanup
-        currentImageRefs.forEach((img) => {
-          if (img) observerRef.current.unobserve(img);
-        });
-      }
-    };
-  }, [currentIndex]);
+      // Store current observer reference
+      const currentObserver = observerRef.current;
 
-  // Auto rotation for desktop view
+      visibleImageRefs.forEach((img) => {
+        if (img && currentObserver) {
+          currentObserver.observe(img);
+        }
+      });
+    }
+  }, [isInViewport, currentIndex, isDesktop, imagesPerView]);
+
+  // Auto rotation for desktop view - only when in viewport
   useEffect(() => {
-    if (isDesktop) {
+    if (isDesktop && isInViewport) {
       const interval = setInterval(() => {
         nextSlide();
       }, 5000);
       return () => clearInterval(interval);
     }
-  }, [nextSlide, isDesktop]);
+  }, [nextSlide, isDesktop, isInViewport]);
+
+  // Generate low-quality placeholder URL from Cloudinary
+  const getPlaceholderUrl = (url) => {
+    return url.replace("/upload/", "/upload/q_10,w_100/");
+  };
 
   // Render mobile view (single image per slide)
   const renderMobileView = () => {
     const headshot = headshots[currentIndex];
+    const placeholderUrl = getPlaceholderUrl(headshot.src);
 
     return (
       <div className="relative w-full h-auto max-w-md mx-auto">
@@ -148,15 +201,12 @@ const Headshots = () => {
             ref={(el) => {
               if (el) imageRefs.current[currentIndex] = el;
             }}
-            src={
-              imagesLoaded[headshot.src]
-                ? headshot.src
-                : "/images/placeholder.jpg"
-            }
+            src={imagesLoaded[headshot.src] ? headshot.src : placeholderUrl}
             data-src={headshot.src}
             alt={`Headshot ${currentIndex + 1}`}
             className="w-full h-auto object-contain"
             onClick={() => setModalImage(headshot)}
+            loading="lazy"
           />
         </div>
 
@@ -186,7 +236,7 @@ const Headshots = () => {
     const visibleHeadshots = [];
     for (let i = 0; i < imagesPerView; i++) {
       const index = (currentIndex + i) % headshots.length;
-      visibleHeadshots.push(headshots[index]);
+      visibleHeadshots.push({ ...headshots[index], index });
     }
 
     return (
@@ -201,29 +251,32 @@ const Headshots = () => {
         </button>
 
         <div className="flex justify-between items-center gap-4 px-12">
-          {visibleHeadshots.map((headshot, index) => (
-            <div
-              key={`${headshot.id}-${index}`}
-              className="w-full cursor-pointer transition-all duration-500 ease-in-out"
-              onClick={() => setModalImage(headshot)}
-            >
-              <div className="relative overflow-hidden rounded-lg">
-                <img
-                  ref={(el) => {
-                    if (el) imageRefs.current[currentIndex + index] = el;
-                  }}
-                  src={
-                    imagesLoaded[headshot.src]
-                      ? headshot.src
-                      : "/images/placeholder.jpg"
-                  }
-                  data-src={headshot.src}
-                  alt={`Headshot ${index + 1}`}
-                  className="w-full h-96 object-cover rounded-lg shadow-lg"
-                />
+          {visibleHeadshots.map((headshot, i) => {
+            const placeholderUrl = getPlaceholderUrl(headshot.src);
+
+            return (
+              <div
+                key={`${headshot.id}-${i}`}
+                className="w-full cursor-pointer transition-all duration-500 ease-in-out"
+                onClick={() => setModalImage(headshot)}
+              >
+                <div className="relative overflow-hidden rounded-lg">
+                  <img
+                    ref={(el) => {
+                      if (el) imageRefs.current[headshot.index] = el;
+                    }}
+                    src={
+                      imagesLoaded[headshot.src] ? headshot.src : placeholderUrl
+                    }
+                    data-src={headshot.src}
+                    alt={`Headshot ${i + 1}`}
+                    className="w-full h-96 object-cover rounded-lg shadow-lg"
+                    loading="lazy"
+                  />
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         <button
@@ -239,7 +292,7 @@ const Headshots = () => {
   };
 
   return (
-    <div className="py-8 md:py-16 relative">
+    <div className="py-8 md:py-16 relative" ref={componentRef}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {!isDesktop && (
           <div className="bg-transparent">{renderMobileView()}</div>

@@ -1,5 +1,66 @@
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
+
 const ProjectItem = ({ project, isEven }) => {
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const imageRef = useRef(null);
+  const observerRef = useRef(null);
+
+  // Generate low-quality placeholder URL from Cloudinary
+  const getPlaceholderUrl = (url) => {
+    return url.replace("/upload/", "/upload/q_10,w_100/");
+  };
+
+  const placeholderUrl = getPlaceholderUrl(project.image);
+
+  useEffect(() => {
+    // Setup intersection observer for lazy loading
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const imgElement = entry.target;
+            const imgSrc = imgElement.getAttribute("data-src");
+
+            if (imgSrc) {
+              // Create a new image object to preload
+              const img = new Image();
+              img.onload = () => {
+                // Once image is loaded, update the src and mark as loaded
+                imgElement.src = imgSrc;
+                imgElement.removeAttribute("data-src");
+                setImageLoaded(true);
+              };
+              img.src = imgSrc;
+
+              // Store the current observer reference
+              const currentObserver = observerRef.current;
+              if (currentObserver) {
+                currentObserver.unobserve(imgElement);
+              }
+            }
+          }
+        });
+      },
+      { rootMargin: "200px 0px" }
+    );
+
+    // Store the current ref values
+    const currentImageRef = imageRef.current;
+    const currentObserver = observerRef.current;
+
+    // Start observing once component is mounted
+    if (currentImageRef && currentObserver) {
+      currentObserver.observe(currentImageRef);
+    }
+
+    return () => {
+      // Use stored reference in cleanup
+      if (currentObserver) {
+        currentObserver.disconnect();
+      }
+    };
+  }, []);
+
   return (
     <div
       className={`flex flex-col md:flex-row mb-16 ${
@@ -8,9 +69,14 @@ const ProjectItem = ({ project, isEven }) => {
     >
       <div className="relative md:w-1/2 mb-6 md:mb-0">
         <img
-          src={project.image}
+          ref={imageRef}
+          src={placeholderUrl}
+          data-src={project.image}
           alt={project.title}
-          className="w-full h-auto rounded-lg shadow-lg"
+          className={`w-full h-auto rounded-lg shadow-lg transition-opacity duration-300 ${
+            imageLoaded ? "opacity-100" : "opacity-70"
+          }`}
+          loading="lazy"
         />
         <h3 className="absolute top-4 left-4 bg-black bg-opacity-70 text-white p-2 text-xl font-bold rounded">
           {project.title}
@@ -36,7 +102,6 @@ const ProjectItem = ({ project, isEven }) => {
           </li>
         </ul>
         <p className="mb-6">{project.description}</p>
-
         <a
           href={project.videoLink}
           target="_blank"
@@ -49,62 +114,84 @@ const ProjectItem = ({ project, isEven }) => {
     </div>
   );
 };
+
 const Projects = () => {
-  // Sample project data - replace with actual project information
+  const [isInViewport, setIsInViewport] = useState(false);
+  const componentRef = useRef(null);
+
+  // Check if component is in viewport
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsInViewport(entry.isIntersecting);
+      },
+      { threshold: 0.1 }
+    );
+
+    // Store the current ref value
+    const currentRef = componentRef.current;
+
+    if (currentRef) {
+      observer.observe(currentRef);
+    }
+
+    return () => {
+      // Use the stored reference in the cleanup function
+      if (currentRef) {
+        observer.unobserve(currentRef);
+      }
+    };
+  }, []);
+
+  // Project data with Cloudinary URLs
   const projects = [
     {
       id: 1,
-      title: "Project 1",
-      image: "/images/Benjamin Simon - 017 - Full.jpg",
-      role: "Lead Actor",
-      director: "Jane Smith",
-      production: "XYZ Studios",
+      title: "Poison Ink",
+      image:
+        "https://res.cloudinary.com/dbvdsg784/image/upload/v1743916223/poisonink.proj1_ukvsgi.png",
+      role: "Paul Cooper",
+      director: "Chan Chan",
+      production: "Written by Jacq Jax",
       year: "2023",
       description:
-        "A gripping drama about overcoming personal challenges in the face of adversity.",
+        "Cruel words are nothing more than ink on paper, or are they? A short film shot in Melbourne Victoria, Australia.",
       videoLink: "https://example.com/video1",
     },
     {
       id: 2,
       title: "NNT Scrubs",
-      image: "/images/Proj_NNT.png",
+      image:
+        "https://res.cloudinary.com/dbvdsg784/image/upload/v1743912095/Proj_NNT_wq0xro.png",
       role: "Actor",
       director: "John Doe",
       production: "ABC Films",
       year: "2023",
-      description: "An advertisement for NNT Active Wear Scrubs,",
+      description: "An advertisement for NNT Active Wear Scrubs.",
       videoLink: "https://example.com/video2",
     },
-    {
-      id: 3,
-      title: "Project 3",
-      image: "/images/Benjamin Simon - 226 - Full.jpg",
-      role: "Character Actor",
-      director: "Sarah Johnson",
-      production: "Indie Productions",
-      year: "2021",
-      description:
-        "An experimental short film showcasing new narrative techniques and visual storytelling.",
-      videoLink: "https://example.com/video3",
-    },
   ];
+
   return (
-    <div className="py-16 bg-gray-100">
+    <div className="py-16 bg-gray-100" ref={componentRef}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 className="text-4xl md:text-5xl font-bold text-center mb-16">
           Past Work
         </h2>
-        <div className="space-y-12">
-          {projects.map((project, index) => (
-            <ProjectItem
-              key={project.id}
-              project={project}
-              isEven={index % 2 !== 0}
-            />
-          ))}
-        </div>
+        {isInViewport && (
+          <div className="space-y-12">
+            {projects.map((project, index) => (
+              <ProjectItem
+                key={project.id}
+                project={project}
+                isEven={index % 2 !== 0}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
 };
+
 export default Projects;
