@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   FaInstagram,
   FaTiktok,
@@ -10,6 +10,7 @@ import { SiX } from "react-icons/si";
 
 const Navbar = ({ onContactClick }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [nameSize, setNameSize] = useState(24); // Start with a base size
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -20,11 +21,45 @@ const Navbar = ({ onContactClick }) => {
     setIsMenuOpen(false);
   };
 
+  useEffect(() => {
+    const handleResize = () => {
+      const viewportWidth = window.innerWidth;
+      // Adjust these breakpoints and scaling factors as needed
+      if (viewportWidth < 640) {
+        // sm
+        setNameSize(20);
+      } else if (viewportWidth < 768) {
+        // md
+        setNameSize(24);
+      } else if (viewportWidth < 1024) {
+        // lg
+        setNameSize(28);
+      } else if (viewportWidth < 1280) {
+        //xl
+        setNameSize(32);
+      } else {
+        setNameSize(36); // Default size for larger screens
+      }
+    };
+
+    handleResize(); // Initial size on mount
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   return (
     <nav className="fixed top-0 left-0 w-full z-50 shadow-md navbar-glass">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
-          <div className="flex-shrink-0 font-light text-xl navbar-glass-text italic text-white">
+          {/* масштабируемый заголовок */}
+          <div
+            className="flex-shrink-0 font-light italic text-white navbar-glass-text"
+            style={{
+              fontSize: `${nameSize}px`,
+              textAlign: "center",
+              flexGrow: 1,
+            }} // Центрирование и изменение размера
+          >
             Ben Simon
           </div>
 
