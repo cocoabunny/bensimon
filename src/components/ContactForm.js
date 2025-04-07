@@ -130,9 +130,11 @@ const ContactForm = () => {
           Let's Work Together
         </h2>
 
-        {/* Ensure the container and its children have consistent rounding and no overflow */}
         <div className="mt-12 bg-white rounded-lg shadow-lg md:flex overflow-hidden">
-          <div className="md:w-1/2 p-8">
+          <div
+            className="md:w-1/2 p-8"
+            style={{ boxShadow: "inset 0px 0px 8px rgba(0, 0, 0, 0.05)" }}
+          >
             <form onSubmit={handleSubmit}>
               <input
                 type="hidden"
@@ -149,7 +151,7 @@ const ContactForm = () => {
                   ref={fullNameRef}
                   placeholder="Full Name*"
                   required
-                  className="w-full bg-transparent border-b-2 border-[#0c0f14] px-3 py-2 text-[#282c34] focus:outline-none"
+                  className="w-full bg-[#f9f9f9] border-b-2 border-[#0c0f14] px-3 py-2 text-[#282c34] focus:outline-none"
                 />
               </div>
 
@@ -160,7 +162,7 @@ const ContactForm = () => {
                   ref={emailRef}
                   placeholder="Email*"
                   required
-                  className="w-full bg-transparent border-b-2 border-[#0c0f14] px-3 py-2 text-[#282c34] focus:outline-none"
+                  className="w-full bg-[#f9f9f9] border-b-2 border-[#0c0f14] px-3 py-2 text-[#282c34] focus:outline-none"
                 />
               </div>
 
@@ -170,14 +172,14 @@ const ContactForm = () => {
                   name="website"
                   ref={websiteRef}
                   placeholder="Affiliated Website"
-                  className="w-full bg-transparent border-b-2 border-[#0c0f14] px-3 py-2 text-[#282c34] focus:outline-none"
+                  className="w-full bg-[#f9f9f9] border-b-2 border-[#0c0f14] px-3 py-2 text-[#282c34] focus:outline-none"
                 />
               </div>
 
               <div className="mb-6">
                 <div
                   onClick={() => toggleExpand("ideas")}
-                  className="w-full bg-transparent border-b-2 border-[#0c0f14] px-3 py-2 text-[#282c34] cursor-pointer flex justify-between items-center"
+                  className="w-full bg-[#f9f9f9] border-b-2 border-[#0c0f14] px-3 py-2 text-[#282c34] cursor-pointer flex justify-between items-center"
                 >
                   <span className="text-[#6a7085]">
                     Tell me about your ideas
@@ -198,7 +200,7 @@ const ContactForm = () => {
               <div className="mb-6">
                 <div
                   onClick={() => toggleExpand("heardFrom")}
-                  className="w-full bg-transparent border-b-2 border-[#0c0f14] px-3 py-2 text-[#282c34] cursor-pointer flex justify-between items-center"
+                  className="w-full bg-[#f9f9f9] border-b-2 border-[#0c0f14] px-3 py-2 text-[#282c34] cursor-pointer flex justify-between items-center"
                 >
                   <span className="text-[#6a7085]">
                     How did you hear about me?
@@ -226,7 +228,6 @@ const ContactForm = () => {
             </form>
           </div>
 
-          {/* Ensure the image container also respects the rounding and set background */}
           <div
             className="md:block md:w-1/2 h-full rounded-r-lg overflow-hidden"
             style={{
