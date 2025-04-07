@@ -8,15 +8,15 @@ import {
 } from "react-icons/fa";
 import { SiX } from "react-icons/si";
 
-const Navbar = () => {
+const Navbar = ({ onContactClick }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  const scrollToSection = (id) => {
-    document.getElementById(id).scrollIntoView({ behavior: "smooth" });
+  const handleContactClick = () => {
+    onContactClick?.();
     setIsMenuOpen(false);
   };
 
@@ -41,7 +41,7 @@ const Navbar = () => {
           {/* Desktop menu */}
           <div className="hidden md:flex items-center space-x-6">
             <button
-              onClick={() => scrollToSection("contact")}
+              onClick={handleContactClick}
               className="text-white hover:text-white transition duration-300"
             >
               <FaEnvelope size={20} />
@@ -79,7 +79,7 @@ const Navbar = () => {
         <div className="md:hidden navbar-glass p-4">
           <div className="flex flex-col space-y-4">
             <button
-              onClick={() => scrollToSection("contact")}
+              onClick={handleContactClick}
               className="flex items-center space-x-2 text-white font-light hover:text-white transition duration-300"
             >
               <FaEnvelope size={20} />
@@ -97,10 +97,8 @@ const Navbar = () => {
             <a
               href="https://www.tiktok.com"
               target="_blank"
-              rel="noopener
-              noreferrer"
-              className="flex items-center space-x-2 text-white
-              font-light hover:text-white transition duration-300"
+              rel="noopener noreferrer"
+              className="flex items-center space-x-2 text-white font-light hover:text-white transition duration-300"
             >
               <FaTiktok size={20} />
               <span>TikTok</span>
