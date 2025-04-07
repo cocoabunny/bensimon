@@ -37,10 +37,13 @@ const ContactForm = () => {
     formSubmitData.append("_captcha", "false");
 
     try {
-      const response = await fetch("https://formsubmit.co/Ben@BenSimon.com", {
-        method: "POST",
-        body: formSubmitData,
-      });
+      const response = await fetch(
+        "https://formsubmit.co/benpsimon@gmail.com",
+        {
+          method: "POST",
+          body: formSubmitData,
+        }
+      );
 
       if (response.ok) {
         setSubmitStatus("success");
