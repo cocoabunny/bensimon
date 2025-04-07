@@ -4,10 +4,12 @@ import { SiX } from "react-icons/si";
 
 const Footer = () => {
   return (
-    <footer className="bg-white text-[#282c34] py-8">
+    <footer className="bg-white text-[#282c34] py-6 md:py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row justify-between items-center">
-          <div className="mb-4 md:mb-0 text-xl font-bold">Ben Simon</div>
+          <div className="mb-4 md:mb-0 text-xl font-light italic">
+            Ben Simon
+          </div>
           <div className="flex space-x-6">
             <a
               href="https://www.instagram.com"

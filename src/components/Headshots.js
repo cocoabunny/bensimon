@@ -7,36 +7,43 @@ const headshots = [
     id: 1,
     src: "https://res.cloudinary.com/dbvdsg784/image/upload/v1743912089/Benjamin_Simon_-_017_-_Full_sqjqlg.jpg",
     orientation: "portrait",
+    title: "Headshot 1",
   },
   {
     id: 2,
     src: "https://res.cloudinary.com/dbvdsg784/image/upload/v1743912090/Benjamin_Simon_-_086_-_Full_ctijcl.jpg",
     orientation: "landscape",
+    title: "Headshot 2",
   },
   {
     id: 3,
-    src: "https://res.cloudinary.com/dbvdsg784/image/upload/v1743912089/Benjamin_Simon_-_121_-_Full_lot7uz.jpg",
+    src: "https://res.cloudinary.com/dbvdsg784/image/upload/v1743912091/Benjamin_Simon_-_226_-_Full_pwwnl0.jpg",
     orientation: "landscape",
+    title: "Headshot 3",
   },
   {
     id: 4,
     src: "https://res.cloudinary.com/dbvdsg784/image/upload/v1743912093/Benjamin_Simon_-_182_lxbwn9.jpg",
     orientation: "portrait",
+    title: "Headshot 4",
   },
   {
     id: 5,
     src: "https://res.cloudinary.com/dbvdsg784/image/upload/v1743912091/Benjamin_Simon_-_187_zeohby.jpg",
     orientation: "portrait",
+    title: "Headshot 5",
   },
   {
     id: 6,
-    src: "https://res.cloudinary.com/dbvdsg784/image/upload/v1743912091/Benjamin_Simon_-_226_-_Full_pwwnl0.jpg",
+    src: "https://res.cloudinary.com/dbvdsg784/image/upload/v1743912089/Benjamin_Simon_-_121_-_Full_lot7uz.jpg",
     orientation: "landscape",
+    title: "Headshot 6",
   },
   {
     id: 7,
     src: "https://res.cloudinary.com/dbvdsg784/image/upload/v1743912094/Benjamin_Simon_-_303_udfmj6.jpg",
     orientation: "portrait",
+    title: "Headshot 7",
   },
 ];
 
@@ -46,10 +53,9 @@ const Headshots = () => {
   const [transitioning, setTransitioning] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
   const [imagesLoaded, setImagesLoaded] = useState({});
-  const [isInViewport, setIsInViewport] = useState(false);
   const componentRef = useRef(null);
   const imageRefs = useRef([]);
-  const observerRef = useRef(null);
+  const observer = useRef(null);
 
   // Check if we're on desktop or mobile
   useEffect(() => {
@@ -62,30 +68,6 @@ const Headshots = () => {
     return () => window.removeEventListener("resize", checkViewport);
   }, []);
 
-  // Check if component is in viewport
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setIsInViewport(entry.isIntersecting);
-      },
-      { threshold: 0.1 }
-    );
-
-    // Store the current ref value
-    const currentRef = componentRef.current;
-
-    if (currentRef) {
-      observer.observe(currentRef);
-    }
-
-    return () => {
-      // Use the stored reference in the cleanup function
-      if (currentRef) {
-        observer.unobserve(currentRef);
-      }
-    };
-  }, []);
-
   // Calculate how many images to show based on viewport
   const imagesPerView = isDesktop ? 3 : 1;
 
@@ -94,7 +76,7 @@ const Headshots = () => {
     setTransitioning(true);
     setCurrentIndex((prevIndex) => (prevIndex + 1) % headshots.length);
     setTimeout(() => setTransitioning(false), 500);
-  }, [transitioning]);
+  }, [transitioning, headshots.length]);
 
   const prevSlide = useCallback(() => {
     if (transitioning) return;
@@ -103,31 +85,36 @@ const Headshots = () => {
       prevIndex === 0 ? headshots.length - 1 : prevIndex - 1
     );
     setTimeout(() => setTransitioning(false), 500);
-  }, [transitioning]);
+  }, [transitioning, headshots.length]);
 
-  // Setup IntersectionObserver for lazy loading
+  // Set up IntersectionObserver
   useEffect(() => {
-    observerRef.current = new IntersectionObserver(
+    observer.current = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            const imgElement = entry.target;
-            const imgSrc = imgElement.getAttribute("data-src");
-            if (imgSrc) {
-              // Create a new image object to preload
-              const img = new Image();
-              img.onload = () => {
-                // Once image is loaded, update the src and mark as loaded
-                imgElement.src = imgSrc;
-                imgElement.removeAttribute("data-src");
-                setImagesLoaded((prev) => ({ ...prev, [imgSrc]: true }));
-              };
-              img.src = imgSrc;
+            const startIndex = currentIndex;
+            const endIndex = isDesktop
+              ? (currentIndex + imagesPerView - 1) % headshots.length
+              : currentIndex;
 
-              // Store current observer reference
-              const currentObserver = observerRef.current;
-              if (currentObserver) {
-                currentObserver.unobserve(imgElement);
+            for (let i = startIndex; i <= endIndex; i++) {
+              const index = i % headshots.length;
+              const imgElement = imageRefs.current[index];
+              if (imgElement && !imagesLoaded[headshots[index].src]) {
+                const imgSrc = imgElement.getAttribute("data-src");
+                if (imgSrc) {
+                  const img = new Image();
+                  img.onload = () => {
+                    imgElement.src = imgSrc;
+                    imgElement.removeAttribute("data-src");
+                    setImagesLoaded((prev) => ({
+                      ...prev,
+                      [imgSrc]: true,
+                    }));
+                  };
+                  img.src = imgSrc;
+                }
               }
             }
           }
@@ -136,78 +123,64 @@ const Headshots = () => {
       { rootMargin: "200px 0px" }
     );
 
-    // Store current observer for cleanup
-    const currentObserver = observerRef.current;
+    const currentRef = componentRef.current;
+    if (currentRef) {
+      observer.current.observe(currentRef);
+    }
 
     return () => {
-      if (currentObserver) {
-        currentObserver.disconnect();
+      if (observer.current) {
+        observer.current.disconnect();
       }
     };
-  }, []);
+  }, [currentIndex, isDesktop, imagesPerView, headshots, imagesLoaded]);
 
-  // Load visible images when component enters viewport
+  // Auto rotate for desktop view
   useEffect(() => {
-    if (isInViewport) {
-      const startIndex = currentIndex;
-      const endIndex = isDesktop
-        ? (currentIndex + imagesPerView) % headshots.length
-        : currentIndex;
-
-      // Get visible images based on current view
-      const visibleImageRefs = [];
-      for (let i = 0; i <= endIndex - startIndex; i++) {
-        const idx = (startIndex + i) % headshots.length;
-        if (imageRefs.current[idx]) {
-          visibleImageRefs.push(imageRefs.current[idx]);
-        }
-      }
-
-      // Store current observer reference
-      const currentObserver = observerRef.current;
-
-      visibleImageRefs.forEach((img) => {
-        if (img && currentObserver) {
-          currentObserver.observe(img);
-        }
-      });
-    }
-  }, [isInViewport, currentIndex, isDesktop, imagesPerView]);
-
-  // Auto rotation for desktop view - only when in viewport
-  useEffect(() => {
-    if (isDesktop && isInViewport) {
-      const interval = setInterval(() => {
+    let interval;
+    if (isDesktop) {
+      interval = setInterval(() => {
         nextSlide();
       }, 5000);
-      return () => clearInterval(interval);
     }
-  }, [nextSlide, isDesktop, isInViewport]);
+    return () => clearInterval(interval);
+  }, [nextSlide, isDesktop]);
 
   // Generate low-quality placeholder URL from Cloudinary
   const getPlaceholderUrl = (url) => {
     return url.replace("/upload/", "/upload/q_10,w_100/");
   };
 
+  const renderImageView = (headshot, index) => {
+    const placeholderUrl = getPlaceholderUrl(headshot.src);
+    const isLoaded = imagesLoaded[headshot.src];
+
+    return (
+      <img
+        ref={(el) => (imageRefs.current[index] = el)}
+        src={isLoaded ? headshot.src : placeholderUrl}
+        data-src={headshot.src}
+        alt={headshot.title}
+        className={`w-full ${
+          isDesktop ? "h-96 object-cover" : "h-auto object-contain"
+        } rounded-lg shadow-lg`}
+        loading="lazy"
+        onClick={() => setModalImage(headshot)}
+      />
+    );
+  };
+
   // Render mobile view (single image per slide)
   const renderMobileView = () => {
     const headshot = headshots[currentIndex];
-    const placeholderUrl = getPlaceholderUrl(headshot.src);
 
     return (
       <div className="relative w-full h-auto max-w-md mx-auto">
+        <h2 className="text-4xl font-bold text-center mb-6 text-white">
+          Headshots
+        </h2>
         <div className="w-full shadow-lg backdrop-blur-sm bg-black/30 rounded-lg overflow-hidden">
-          <img
-            ref={(el) => {
-              if (el) imageRefs.current[currentIndex] = el;
-            }}
-            src={imagesLoaded[headshot.src] ? headshot.src : placeholderUrl}
-            data-src={headshot.src}
-            alt={`Headshot ${currentIndex + 1}`}
-            className="w-full h-auto object-contain"
-            onClick={() => setModalImage(headshot)}
-            loading="lazy"
-          />
+          {renderImageView(headshot, currentIndex)}
         </div>
 
         <button
@@ -241,6 +214,9 @@ const Headshots = () => {
 
     return (
       <div className="relative w-full max-w-7xl mx-auto">
+        <h2 className="text-4xl md:text-5xl font-bold text-center mb-12 text-white hidden md:block">
+          Headshots
+        </h2>
         <button
           onClick={prevSlide}
           className="absolute left-0 top-1/2 -translate-y-1/2 text-white p-3 hover:opacity-70 transition z-10"
@@ -251,32 +227,16 @@ const Headshots = () => {
         </button>
 
         <div className="flex justify-between items-center gap-4 px-12">
-          {visibleHeadshots.map((headshot, i) => {
-            const placeholderUrl = getPlaceholderUrl(headshot.src);
-
-            return (
-              <div
-                key={`${headshot.id}-${i}`}
-                className="w-full cursor-pointer transition-all duration-500 ease-in-out"
-                onClick={() => setModalImage(headshot)}
-              >
-                <div className="relative overflow-hidden rounded-lg">
-                  <img
-                    ref={(el) => {
-                      if (el) imageRefs.current[headshot.index] = el;
-                    }}
-                    src={
-                      imagesLoaded[headshot.src] ? headshot.src : placeholderUrl
-                    }
-                    data-src={headshot.src}
-                    alt={`Headshot ${i + 1}`}
-                    className="w-full h-96 object-cover rounded-lg shadow-lg"
-                    loading="lazy"
-                  />
-                </div>
+          {visibleHeadshots.map((headshot) => (
+            <div
+              key={`${headshot.id}`}
+              className="w-full cursor-pointer transition-all duration-500 ease-in-out"
+            >
+              <div className="relative overflow-hidden rounded-lg">
+                {renderImageView(headshot, headshot.index)}
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
 
         <button
@@ -297,18 +257,9 @@ const Headshots = () => {
       ref={componentRef}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {!isDesktop && (
-          <div className="bg-transparent">{renderMobileView()}</div>
-        )}
+        {!isDesktop && renderMobileView()}
 
-        {isDesktop && (
-          <>
-            <h2 className="text-4xl md:text-5xl font-bold text-center mb-8 md:mb-12 text-white">
-              Headshots
-            </h2>
-            {renderDesktopView()}
-          </>
-        )}
+        {isDesktop && renderDesktopView()}
       </div>
 
       {modalImage && (

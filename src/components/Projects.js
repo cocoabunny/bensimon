@@ -56,7 +56,7 @@ const ProjectItem = ({ project, isEven }) => {
 
   return (
     <div
-      className={`flex flex-col md:flex-row mb-16 ${
+      className={`flex flex-col md:flex-row mb-12 ${
         isEven ? "md:flex-row-reverse" : ""
       }`}
     >
@@ -102,7 +102,7 @@ const ProjectItem = ({ project, isEven }) => {
           rel="noopener noreferrer"
           className="inline-block bg-white text-[#0c0f14] py-2 px-6 rounded hover:bg-gray-200 transition-colors w-max font-medium"
         >
-          Watch Now
+          View >
         </a>
       </div>
     </div>
@@ -149,7 +149,7 @@ const Projects = () => {
       id="projects"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-4xl md:text-5xl font-bold text-center mb-16">
+        <h2 className="text-4xl md:text-5xl font-bold text-center mb-8">
           Past Work
         </h2>
 
