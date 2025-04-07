@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 
-const ProjectItem = ({ project, isEven }) => {
+const ProjectItem = ({ project, isEven, isFirst }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const imageRef = useRef(null);
   const observerRef = useRef(null);
@@ -56,9 +56,9 @@ const ProjectItem = ({ project, isEven }) => {
 
   return (
     <div
-      className={`flex flex-col md:flex-row mb-12 ${
+      className={`flex flex-col md:flex-row mb-12 rounded-lg shadow-md overflow-hidden ${
         isEven ? "md:flex-row-reverse" : ""
-      }`}
+      } ${isFirst ? "bg-black" : "bg-white/5"}`} // Added background for first card
     >
       <div className="relative md:w-1/2 mb-6 md:mb-0">
         <img
@@ -66,21 +66,35 @@ const ProjectItem = ({ project, isEven }) => {
           src={placeholderUrl}
           data-src={project.image}
           alt={project.title}
-          className={`w-full h-auto rounded-lg shadow-lg transition-opacity duration-300 ${
+          className={`w-full h-auto transition-opacity duration-300 ${
             imageLoaded ? "opacity-100" : "opacity-70"
           }`}
           loading="lazy"
+          style={{
+            borderTopLeftRadius: isFirst ? "0.5rem" : "0",
+            borderBottomLeftRadius: isFirst ? "0.5rem" : "0",
+            borderTopRightRadius: isEven ? "0.5rem" : "0",
+            borderBottomRightRadius: isEven ? "0.5rem" : "0",
+          }}
         />
       </div>
       <div
-        className={`md:w-1/2 ${
+        className={`md:w-1/2 p-6 ${
           isEven ? "md:pr-8" : "md:pl-8"
-        } flex flex-col justify-center text-white`}
+        } flex flex-col justify-start ${isFirst ? "text-white" : "text-white"}`} // Changed justify-center to justify-start
       >
-        <h2 className="text-3xl md:text-4xl font-bold mb-4 italic">
+        <h2
+          className={`text-3xl md:text-4xl font-bold mb-4 italic ${
+            isFirst ? "text-white" : "text-white"
+          }`}
+        >
           {project.title}
         </h2>
-        <hr className="border-t border-white w-full mb-6" />
+        <hr
+          className={`border-t ${
+            isFirst ? "border-white" : "border-white"
+          } w-full mb-6`}
+        />
         <ul className="list-disc list-inside mb-6 space-y-2">
           <li>
             <strong>Role:</strong> {project.role}
@@ -100,7 +114,11 @@ const ProjectItem = ({ project, isEven }) => {
           href={project.videoLink}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-block bg-white text-[#0c0f14] py-2 px-6 rounded hover:bg-gray-200 transition-colors w-max font-medium"
+          className={`inline-block py-2 px-6 rounded transition-colors w-max font-medium ${
+            isFirst
+              ? "bg-white text-[#0c0f14] hover:bg-gray-200"
+              : "bg-white text-[#0c0f14] hover:bg-gray-200"
+          }`}
         >
           View >
         </a>
@@ -159,6 +177,7 @@ const Projects = () => {
               key={project.id}
               project={project}
               isEven={index % 2 !== 0}
+              isFirst={index === 0}
             />
           ))}
         </div>
