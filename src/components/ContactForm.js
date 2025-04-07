@@ -130,109 +130,116 @@ const ContactForm = () => {
           Let's Work Together
         </h2>
 
-        <div className="mt-12 bg-white rounded-lg shadow-lg overflow-hidden">
-          <div className="md:flex">
-            <div className="md:w-1/2 p-8">
-              <form onSubmit={handleSubmit}>
-                <input
-                  type="hidden"
-                  name="_subject"
-                  value="New portfolio contact!"
-                />
-                <input type="hidden" name="_captcha" value="false" />
-                <input type="text" name="_honey" style={{ display: "none" }} />
-
-                <div className="mb-6">
-                  <input
-                    type="text"
-                    name="fullName"
-                    ref={fullNameRef}
-                    placeholder="Full Name*"
-                    required
-                    className="w-full bg-transparent border-b-2 border-[#0c0f14] px-3 py-2 text-[#282c34] focus:outline-none"
-                  />
-                </div>
-
-                <div className="mb-6">
-                  <input
-                    type="email"
-                    name="email"
-                    ref={emailRef}
-                    placeholder="Email*"
-                    required
-                    className="w-full bg-transparent border-b-2 border-[#0c0f14] px-3 py-2 text-[#282c34] focus:outline-none"
-                  />
-                </div>
-
-                <div className="mb-6">
-                  <input
-                    type="text"
-                    name="website"
-                    ref={websiteRef}
-                    placeholder="Affiliated Website"
-                    className="w-full bg-transparent border-b-2 border-[#0c0f14] px-3 py-2 text-[#282c34] focus:outline-none"
-                  />
-                </div>
-
-                <div className="mb-6">
-                  <div
-                    onClick={() => toggleExpand("ideas")}
-                    className="w-full bg-transparent border-b-2 border-[#0c0f14] px-3 py-2 text-[#282c34] cursor-pointer flex justify-between items-center"
-                  >
-                    <span className="text-[#6a7085]">
-                      Tell me about your ideas
-                    </span>
-                    <span>{expandedFields.ideas ? "−" : "+"}</span>
-                  </div>
-                  {expandedFields.ideas && (
-                    <textarea
-                      name="ideas"
-                      ref={ideasRef}
-                      rows="4"
-                      maxLength="1000"
-                      className="w-full mt-4 bg-[#e9eaed] border border-[#282c34] rounded p-3 text-[#282c34] focus:outline-none"
-                    />
-                  )}
-                </div>
-
-                <div className="mb-6">
-                  <div
-                    onClick={() => toggleExpand("heardFrom")}
-                    className="w-full bg-transparent border-b-2 border-[#0c0f14] px-3 py-2 text-[#282c34] cursor-pointer flex justify-between items-center"
-                  >
-                    <span className="text-[#6a7085]">
-                      How did you hear about me?
-                    </span>
-                    <span>{expandedFields.heardFrom ? "−" : "+"}</span>
-                  </div>
-                  {expandedFields.heardFrom && (
-                    <textarea
-                      name="heardFrom"
-                      ref={heardFromRef}
-                      rows="4"
-                      maxLength="1000"
-                      className="w-full mt-4 bg-[#e9eaed] border border-[#282c34] rounded p-3 text-[#282c34] focus:outline-none"
-                    />
-                  )}
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="bg-[#282c34] text-white py-3 px-8 rounded hover:bg-[#3e4451] transition-colors disabled:opacity-50"
-                >
-                  {isSubmitting ? "Sending..." : "Send"}
-                </button>
-              </form>
-            </div>
-
-            <div className="hidden md:block md:w-1/2">
-              <img
-                src="https://res.cloudinary.com/dbvdsg784/image/upload/v1743912092/Benjamin_Simon_-_290_-_Contact_lcpdr2.jpg"
-                alt="Ben Simon"
-                className="w-full h-full object-cover"
+        {/* Ensure the container and its children have consistent rounding and no overflow */}
+        <div className="mt-12 bg-white rounded-lg shadow-lg md:flex overflow-hidden">
+          <div className="md:w-1/2 p-8">
+            <form onSubmit={handleSubmit}>
+              <input
+                type="hidden"
+                name="_subject"
+                value="New portfolio contact!"
               />
-            </div>
+              <input type="hidden" name="_captcha" value="false" />
+              <input type="text" name="_honey" style={{ display: "none" }} />
+
+              <div className="mb-6">
+                <input
+                  type="text"
+                  name="fullName"
+                  ref={fullNameRef}
+                  placeholder="Full Name*"
+                  required
+                  className="w-full bg-transparent border-b-2 border-[#0c0f14] px-3 py-2 text-[#282c34] focus:outline-none"
+                />
+              </div>
+
+              <div className="mb-6">
+                <input
+                  type="email"
+                  name="email"
+                  ref={emailRef}
+                  placeholder="Email*"
+                  required
+                  className="w-full bg-transparent border-b-2 border-[#0c0f14] px-3 py-2 text-[#282c34] focus:outline-none"
+                />
+              </div>
+
+              <div className="mb-6">
+                <input
+                  type="text"
+                  name="website"
+                  ref={websiteRef}
+                  placeholder="Affiliated Website"
+                  className="w-full bg-transparent border-b-2 border-[#0c0f14] px-3 py-2 text-[#282c34] focus:outline-none"
+                />
+              </div>
+
+              <div className="mb-6">
+                <div
+                  onClick={() => toggleExpand("ideas")}
+                  className="w-full bg-transparent border-b-2 border-[#0c0f14] px-3 py-2 text-[#282c34] cursor-pointer flex justify-between items-center"
+                >
+                  <span className="text-[#6a7085]">
+                    Tell me about your ideas
+                  </span>
+                  <span>{expandedFields.ideas ? "−" : "+"}</span>
+                </div>
+                {expandedFields.ideas && (
+                  <textarea
+                    name="ideas"
+                    ref={ideasRef}
+                    rows="4"
+                    maxLength="1000"
+                    className="w-full mt-4 bg-[#e9eaed] border border-[#e9eaed] rounded p-3 text-[#282c34] focus:outline-none"
+                  />
+                )}
+              </div>
+
+              <div className="mb-6">
+                <div
+                  onClick={() => toggleExpand("heardFrom")}
+                  className="w-full bg-transparent border-b-2 border-[#0c0f14] px-3 py-2 text-[#282c34] cursor-pointer flex justify-between items-center"
+                >
+                  <span className="text-[#6a7085]">
+                    How did you hear about me?
+                  </span>
+                  <span>{expandedFields.heardFrom ? "−" : "+"}</span>
+                </div>
+                {expandedFields.heardFrom && (
+                  <textarea
+                    name="heardFrom"
+                    ref={heardFromRef}
+                    rows="4"
+                    maxLength="1000"
+                    className="w-full mt-4 bg-[#e9eaed] border border-[#e9eaed] rounded p-3 text-[#282c34] focus:outline-none"
+                  />
+                )}
+              </div>
+
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="bg-[#282c34] text-white py-3 px-8 rounded hover:bg-[#3e4451] transition-colors disabled:opacity-50"
+              >
+                {isSubmitting ? "Sending..." : "Send"}
+              </button>
+            </form>
+          </div>
+
+          {/* Ensure the image container also respects the rounding and set background */}
+          <div
+            className="md:block md:w-1/2 h-full rounded-r-lg overflow-hidden"
+            style={{
+              backgroundColor: "#0c0f14",
+              boxShadow: "2px 4px 8px rgba(0, 0, 0, 0.2)",
+            }}
+          >
+            <img
+              src="https://res.cloudinary.com/dbvdsg784/image/upload/v1743998747/Benjamin_Simon_-_290_1_iv1ffc.jpg"
+              alt="Ben Simon"
+              className="w-full h-full object-cover"
+              style={{ display: "block" }}
+            />
           </div>
         </div>
       </div>

@@ -5,37 +5,37 @@ import Modal from "./Modal";
 const headshots = [
   {
     id: 1,
-    src: "https://res.cloudinary.com/dbvdsg784/image/upload/v1743912089/Benjamin_Simon_-_017_-_Full_sqjqlg.jpg",
+    src: "https://res.cloudinary.com/dbvdsg784/image/upload/v1743998746/Benjamin_Simon_-_017_-_Full_1_1_lxpqjf.jpg",
     orientation: "portrait",
     title: "Headshot 1",
   },
   {
     id: 2,
-    src: "https://res.cloudinary.com/dbvdsg784/image/upload/v1743912090/Benjamin_Simon_-_086_-_Full_ctijcl.jpg",
+    src: "https://res.cloudinary.com/dbvdsg784/image/upload/v1743998747/Benjamin_Simon_-_086_-_Full_1_aqd8ot.jpg",
     orientation: "landscape",
     title: "Headshot 2",
   },
   {
     id: 3,
-    src: "https://res.cloudinary.com/dbvdsg784/image/upload/v1743912091/Benjamin_Simon_-_226_-_Full_pwwnl0.jpg",
+    src: "https://res.cloudinary.com/dbvdsg784/image/upload/v1743998762/Benjamin_Simon_-_226_1_lvcuvb.jpg",
     orientation: "landscape",
     title: "Headshot 3",
   },
   {
     id: 4,
-    src: "https://res.cloudinary.com/dbvdsg784/image/upload/v1743912093/Benjamin_Simon_-_182_lxbwn9.jpg",
+    src: "https://res.cloudinary.com/dbvdsg784/image/upload/v1743998747/Benjamin_Simon_-_182_1_su9cxn.jpg",
     orientation: "portrait",
     title: "Headshot 4",
   },
   {
     id: 5,
-    src: "https://res.cloudinary.com/dbvdsg784/image/upload/v1743912091/Benjamin_Simon_-_187_zeohby.jpg",
+    src: "https://res.cloudinary.com/dbvdsg784/image/upload/v1743998748/Benjamin_Simon_-_187_1_fuknjo.jpg",
     orientation: "portrait",
     title: "Headshot 5",
   },
   {
     id: 6,
-    src: "https://res.cloudinary.com/dbvdsg784/image/upload/v1743912089/Benjamin_Simon_-_121_-_Full_lot7uz.jpg",
+    src: "https://res.cloudinary.com/dbvdsg784/image/upload/v1743998747/Benjamin_Simon_-_121_-_Full_1_olck1q.jpg",
     orientation: "landscape",
     title: "Headshot 6",
   },
@@ -76,7 +76,7 @@ const Headshots = () => {
     setTransitioning(true);
     setCurrentIndex((prevIndex) => (prevIndex + 1) % headshots.length);
     setTimeout(() => setTransitioning(false), 500);
-  }, [transitioning, headshots.length]);
+  }, [transitioning]); // Removed headshots.length dependency
 
   const prevSlide = useCallback(() => {
     if (transitioning) return;
@@ -85,7 +85,7 @@ const Headshots = () => {
       prevIndex === 0 ? headshots.length - 1 : prevIndex - 1
     );
     setTimeout(() => setTransitioning(false), 500);
-  }, [transitioning, headshots.length]);
+  }, [transitioning]); // Removed headshots.length dependency
 
   // Set up IntersectionObserver
   useEffect(() => {
@@ -133,7 +133,7 @@ const Headshots = () => {
         observer.current.disconnect();
       }
     };
-  }, [currentIndex, isDesktop, imagesPerView, headshots, imagesLoaded]);
+  }, [currentIndex, isDesktop, imagesPerView, imagesLoaded]); // Removed headshots dependency
 
   // Auto rotate for desktop view
   useEffect(() => {
