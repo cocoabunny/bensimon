@@ -38,7 +38,7 @@ const ContactForm = () => {
 
     try {
       const response = await fetch(
-        "https://formsubmit.co/benpsimon@gmail.com",
+        "https://formsubmit.co/Ben@bensimonactor.com",
         {
           method: "POST",
           body: formSubmitData,
