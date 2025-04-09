@@ -5,87 +5,200 @@ const HeroBanner = () => {
   const [isMuted, setIsMuted] = useState(true);
   const [showControl, setShowControl] = useState(false);
   const [showEndText, setShowEndText] = useState(false);
-  const cloudinaryUrl =
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const [isVideoVisible, setIsVideoVisible] = useState(false);
+  const [hasUserInteracted, setHasUserInteracted] = useState(false);
+
+  // Video sources
+  const desktopVideoUrl =
     "https://res.cloudinary.com/dbvdsg784/video/upload/q_auto,f_auto/v1743912145/hero-video_er3cen.mp4";
+  const mobileVideoUrl =
+    "https://res.cloudinary.com/dbvdsg784/video/upload/v1744235335/DearHenry_Web_guy4tb.mp4";
+  const placeholderImageUrl =
+    "https://res.cloudinary.com/dbvdsg784/image/upload/v1744235430/Screenshot_2025-03-25_111240_isj5dk.png";
+
+  // Determine if device is mobile
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    const videoElement = videoRef.current;
+    // Check if device is mobile
+    const checkMobile = () => {
+      const userAgent = navigator.userAgent.toLowerCase();
+      const mobileDevices =
+        /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i;
+      setIsMobile(mobileDevices.test(userAgent));
+    };
 
-    if (videoElement) {
-      // Start video muted to improve autoplay reliability
-      videoElement.muted = true;
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
 
-      // Play the video
-      const playPromise = videoElement.play();
-
-      // Handle initial unmute after successful play
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            // Video started playing successfully
-            // Unmute after 1 second
-            setTimeout(() => {
-              videoElement.muted = false;
-              setIsMuted(false);
-              setShowControl(true); // Show control once we've unmuted
-            }, 1000);
-          })
-          .catch((error) => {
-            console.error("Video play error:", error);
-            // If autoplay fails, show the control anyway
-            setShowControl(true);
-          });
-      }
-
-      // Function to handle video timing for end animation
-      const handleTimeUpdate = () => {
-        // Get video duration and current time
-        const duration = videoElement.duration;
-        const currentTime = videoElement.currentTime;
-
-        // Show the text during the last 8 seconds
-        if (duration - currentTime <= 8) {
-          setShowEndText(true);
-        } else {
-          setShowEndText(false);
-        }
-
-        // Check if the video has looped (currentTime very small)
-        if (currentTime < 0.1) {
-          videoElement.muted = true;
-          setIsMuted(true);
-          setShowEndText(false); // Hide text when video loops
-        }
-      };
-
-      // Use timeupdate event to track video progress
-      videoElement.addEventListener("timeupdate", handleTimeUpdate);
-
-      // Get video metadata to know the duration
-      videoElement.addEventListener("loadedmetadata", () => {
-        console.log("Video duration:", videoElement.duration);
-      });
-
-      // Cleanup function
-      return () => {
-        if (videoElement) {
-          videoElement.removeEventListener("timeupdate", handleTimeUpdate);
-          videoElement.pause();
-        }
-      };
-    }
+    return () => {
+      window.removeEventListener("resize", checkMobile);
+    };
   }, []);
 
+  // Setup video event listeners
+  useEffect(() => {
+    const videoElement = videoRef.current;
+    if (!videoElement) return;
+
+    // Start with video muted
+    videoElement.muted = true;
+
+    // Handle video events
+    const handleCanPlay = () => {
+      console.log("Video can play");
+      if (hasUserInteracted) {
+        startPlayback();
+      }
+    };
+
+    const handleEnded = () => {
+      console.log("Video ended");
+      setShowEndText(false);
+      // Reset state for loop
+      videoElement.muted = true;
+      setIsMuted(true);
+    };
+
+    const handleTimeUpdate = () => {
+      if (!videoElement) return;
+
+      const duration = videoElement.duration;
+      const currentTime = videoElement.currentTime;
+
+      // Show end text during last 8 seconds
+      if (duration - currentTime <= 8) {
+        setShowEndText(true);
+      } else {
+        setShowEndText(false);
+      }
+
+      // Reset state if video loops back to beginning
+      if (currentTime < 0.1 && isVideoPlaying) {
+        videoElement.muted = true;
+        setIsMuted(true);
+        setShowEndText(false);
+      }
+    };
+
+    // Add event listeners
+    videoElement.addEventListener("canplay", handleCanPlay);
+    videoElement.addEventListener("ended", handleEnded);
+    videoElement.addEventListener("timeupdate", handleTimeUpdate);
+
+    // Try auto-play but prepare for failure
+    tryAutoPlay();
+
+    // Cleanup
+    return () => {
+      if (videoElement) {
+        videoElement.removeEventListener("canplay", handleCanPlay);
+        videoElement.removeEventListener("ended", handleEnded);
+        videoElement.removeEventListener("timeupdate", handleTimeUpdate);
+        videoElement.pause();
+      }
+    };
+  }, [hasUserInteracted, isMobile]);
+
+  // Global document event listeners for user interaction
+  useEffect(() => {
+    const handleUserInteraction = () => {
+      if (!hasUserInteracted) {
+        console.log("User interaction detected");
+        setHasUserInteracted(true);
+        tryAutoPlay();
+      }
+    };
+
+    // Add listeners for user interaction
+    document.addEventListener("touchstart", handleUserInteraction, {
+      once: true,
+    });
+    document.addEventListener("click", handleUserInteraction, { once: true });
+
+    return () => {
+      document.removeEventListener("touchstart", handleUserInteraction);
+      document.removeEventListener("click", handleUserInteraction);
+    };
+  }, [hasUserInteracted]);
+
+  // Try to autoplay the video
+  const tryAutoPlay = async () => {
+    const videoElement = videoRef.current;
+    if (!videoElement) return;
+
+    try {
+      console.log("Attempting autoplay");
+      // Load the correct source
+      videoElement.src = isMobile ? mobileVideoUrl : desktopVideoUrl;
+      videoElement.load();
+
+      // Try to play
+      await videoElement.play();
+      console.log("Autoplay successful");
+      startPlayback();
+    } catch (error) {
+      console.warn("Autoplay prevented:", error);
+      // Show video controls and wait for manual interaction
+      setShowControl(true);
+      // Keep video invisible, show placeholder instead
+      setIsVideoVisible(false);
+    }
+  };
+
+  // Start video playback with proper states and timing
+  const startPlayback = () => {
+    const videoElement = videoRef.current;
+    if (!videoElement) return;
+
+    setIsVideoPlaying(true);
+    setIsVideoVisible(true);
+
+    // Unmute after 500ms
+    setTimeout(() => {
+      if (videoElement) {
+        videoElement.muted = false;
+        setIsMuted(false);
+        setShowControl(true);
+      }
+    }, 500);
+  };
+
+  // Toggle mute state
   const toggleMute = () => {
-    if (videoRef.current) {
-      const newMutedState = !isMuted;
-      videoRef.current.muted = newMutedState;
-      setIsMuted(newMutedState);
+    const videoElement = videoRef.current;
+    if (!videoElement) return;
+
+    const newMutedState = !isMuted;
+    videoElement.muted = newMutedState;
+    setIsMuted(newMutedState);
+  };
+
+  // Manual play function for the play button
+  const manualPlay = async () => {
+    const videoElement = videoRef.current;
+    if (!videoElement) return;
+
+    console.log("Manual play initiated");
+    setHasUserInteracted(true);
+
+    try {
+      // Ensure video has the right source
+      videoElement.src = isMobile ? mobileVideoUrl : desktopVideoUrl;
+      videoElement.load();
+
+      await videoElement.play();
+      startPlayback();
+    } catch (error) {
+      console.error("Manual play failed:", error);
+      // If even manual play fails, we're probably in a browser that
+      // really doesn't support video playback well
+      alert("Video playback is not supported in your browser");
     }
   };
 
   const scrollToContact = () => {
-    // Scroll to contact form
     const contactForm = document.getElementById("contact");
     if (contactForm) {
       contactForm.scrollIntoView({ behavior: "smooth" });
@@ -94,27 +207,65 @@ const HeroBanner = () => {
 
   return (
     <div className="relative w-full h-screen">
+      {/* Placeholder Image (shown until video starts playing) */}
+      {!isVideoVisible && (
+        <div className="absolute top-0 left-0 w-full h-full">
+          <img
+            src={placeholderImageUrl}
+            alt="Video placeholder"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <button
+              onClick={manualPlay}
+              className="bg-black bg-opacity-50 text-white p-4 rounded-full hover:bg-opacity-70 transition-all focus:outline-none"
+              aria-label="Play video"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-8 w-8"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Background Video */}
       <video
         ref={videoRef}
-        className="absolute top-0 left-0 w-full h-full object-cover"
-        src={cloudinaryUrl}
-        type="video/mp4"
-        autoPlay
+        className={`absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-500 ${
+          isVideoVisible ? "opacity-100" : "opacity-0"
+        }`}
+        preload="auto"
         muted
         loop
         playsInline
-        preload="auto"
       />
 
-      {/* Black overlay that appears during end animation - now fully black */}
+      {/* Black overlay for end animation */}
       <div
         className={`absolute top-0 left-0 w-full h-full bg-black transition-opacity duration-1000 ${
           showEndText ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
       />
 
-      {/* End Text Animation - Stacked and staggered text */}
+      {/* End Text Animation */}
       <div
         className={`absolute top-32 md:top-1/3 left-1/2 transform -translate-x-1/2
                     text-center transition-opacity duration-700 w-full px-4 ${
@@ -146,7 +297,7 @@ const HeroBanner = () => {
       </div>
 
       {/* Sound Toggle Button */}
-      {showControl && (
+      {showControl && isVideoVisible && (
         <button
           onClick={toggleMute}
           className="absolute bottom-8 right-8 z-10 bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-70 transition-all focus:outline-none"
