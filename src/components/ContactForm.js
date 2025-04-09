@@ -133,9 +133,10 @@ const ContactForm = () => {
           Let's Work Together
         </h2>
 
-        <div className="mt-12 bg-white rounded-lg shadow-lg md:flex overflow-hidden">
+        <div className="mt-12 md:flex overflow-hidden rounded-lg">
+          {/* Form section with white background and left rounded corners */}
           <div
-            className="md:w-1/2 p-8"
+            className="md:w-1/2 p-8 bg-white rounded-l-lg"
             style={{ boxShadow: "inset 0px 0px 8px rgba(0, 0, 0, 0.05)" }}
           >
             <form onSubmit={handleSubmit}>
@@ -224,26 +225,34 @@ const ContactForm = () => {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="bg-[#282c34] text-white py-3 px-8 rounded hover:bg-[#3e4451] transition-colors disabled:opacity-50"
+                className="bg-[#0c0f14] text-white py-3 px-8 rounded hover:bg-[#3e4451] transition-colors disabled:opacity-50"
               >
                 {isSubmitting ? "Sending..." : "Send"}
               </button>
             </form>
           </div>
 
+          {/* Image section with dark background and right rounded corners */}
           <div
-            className="md:block md:w-1/2 h-full rounded-r-lg overflow-hidden"
-            style={{
-              backgroundColor: "#0c0f14",
-              boxShadow: "2px 4px 8px rgba(0, 0, 0, 0.2)",
-            }}
+            className="md:w-1/2 rounded-r-lg overflow-hidden flex"
+            style={{ backgroundColor: "#0c0f14" }}
           >
-            <img
-              src="https://res.cloudinary.com/dbvdsg784/image/upload/v1743998747/Benjamin_Simon_-_290_1_iv1ffc.jpg"
-              alt="Ben Simon"
-              className="w-full h-full object-cover"
-              style={{ display: "block" }}
-            />
+            <div className="relative h-full w-full">
+              <img
+                src="https://res.cloudinary.com/dbvdsg784/image/upload/v1743998747/Benjamin_Simon_-_290_1_iv1ffc.jpg"
+                alt="Ben Simon"
+                className="h-full w-full object-cover"
+              />
+
+              {/* Border overlay to cover any white edges */}
+              <div
+                className="absolute inset-0 pointer-events-none rounded-r-lg"
+                style={{
+                  boxShadow: "inset 0 0 0 5px #0c0f14",
+                  zIndex: 5,
+                }}
+              />
+            </div>
           </div>
         </div>
       </div>

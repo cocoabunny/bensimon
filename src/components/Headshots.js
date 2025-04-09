@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { ImSpinner8 } from "react-icons/im";
 import Modal from "./Modal";
 
 const headshots = [
@@ -52,9 +53,9 @@ const Headshots = () => {
   const [modalImage, setModalImage] = useState(null);
   const [transitioning, setTransitioning] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
+  const [loadingImages, setLoadingImages] = useState({});
   const [imagesLoaded, setImagesLoaded] = useState({});
   const componentRef = useRef(null);
-  const imageRefs = useRef([]);
   const observer = useRef(null);
 
   // Check if we're on desktop or mobile
@@ -76,7 +77,7 @@ const Headshots = () => {
     setTransitioning(true);
     setCurrentIndex((prevIndex) => (prevIndex + 1) % headshots.length);
     setTimeout(() => setTransitioning(false), 500);
-  }, [transitioning]); // Removed headshots.length dependency
+  }, [transitioning]);
 
   const prevSlide = useCallback(() => {
     if (transitioning) return;
@@ -85,38 +86,41 @@ const Headshots = () => {
       prevIndex === 0 ? headshots.length - 1 : prevIndex - 1
     );
     setTimeout(() => setTransitioning(false), 500);
-  }, [transitioning]); // Removed headshots.length dependency
+  }, [transitioning]);
 
-  // Set up IntersectionObserver
+  // Preload images for visible slides
   useEffect(() => {
+    const loadImagesForCurrentView = () => {
+      const imagesToLoad = [];
+      for (let i = 0; i < imagesPerView; i++) {
+        const index = (currentIndex + i) % headshots.length;
+        imagesToLoad.push(headshots[index]);
+      }
+
+      imagesToLoad.forEach((headshot) => {
+        if (!imagesLoaded[headshot.src] && !loadingImages[headshot.src]) {
+          setLoadingImages((prev) => ({ ...prev, [headshot.src]: true }));
+
+          const img = new Image();
+          img.onload = () => {
+            setImagesLoaded((prev) => ({ ...prev, [headshot.src]: true }));
+            setLoadingImages((prev) => {
+              const updated = { ...prev };
+              delete updated[headshot.src];
+              return updated;
+            });
+          };
+          img.src = headshot.src;
+        }
+      });
+    };
+
+    // Set up IntersectionObserver to trigger image loading
     observer.current = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            const startIndex = currentIndex;
-            const endIndex = isDesktop
-              ? (currentIndex + imagesPerView - 1) % headshots.length
-              : currentIndex;
-
-            for (let i = startIndex; i <= endIndex; i++) {
-              const index = i % headshots.length;
-              const imgElement = imageRefs.current[index];
-              if (imgElement && !imagesLoaded[headshots[index].src]) {
-                const imgSrc = imgElement.getAttribute("data-src");
-                if (imgSrc) {
-                  const img = new Image();
-                  img.onload = () => {
-                    imgElement.src = imgSrc;
-                    imgElement.removeAttribute("data-src");
-                    setImagesLoaded((prev) => ({
-                      ...prev,
-                      [imgSrc]: true,
-                    }));
-                  };
-                  img.src = imgSrc;
-                }
-              }
-            }
+            loadImagesForCurrentView();
           }
         });
       },
@@ -128,12 +132,15 @@ const Headshots = () => {
       observer.current.observe(currentRef);
     }
 
+    // Also load initially without waiting for intersection
+    loadImagesForCurrentView();
+
     return () => {
       if (observer.current) {
         observer.current.disconnect();
       }
     };
-  }, [currentIndex, isDesktop, imagesPerView, imagesLoaded]); // Removed headshots dependency
+  }, [currentIndex, isDesktop, imagesPerView, imagesLoaded, loadingImages]);
 
   // Auto rotate for desktop view
   useEffect(() => {
@@ -146,27 +153,50 @@ const Headshots = () => {
     return () => clearInterval(interval);
   }, [nextSlide, isDesktop]);
 
-  // Generate low-quality placeholder URL from Cloudinary
-  const getPlaceholderUrl = (url) => {
-    return url.replace("/upload/", "/upload/q_10,w_100/");
-  };
-
-  const renderImageView = (headshot, index) => {
-    const placeholderUrl = getPlaceholderUrl(headshot.src);
+  const renderImageView = (headshot) => {
     const isLoaded = imagesLoaded[headshot.src];
+    const isLoading = loadingImages[headshot.src];
 
     return (
-      <img
-        ref={(el) => (imageRefs.current[index] = el)}
-        src={isLoaded ? headshot.src : placeholderUrl}
-        data-src={headshot.src}
-        alt={headshot.title}
-        className={`w-full ${
-          isDesktop ? "h-96 object-cover" : "h-auto object-contain"
-        } rounded-lg shadow-lg`}
-        loading="lazy"
-        onClick={() => setModalImage(headshot)}
-      />
+      <div className="relative overflow-hidden rounded-lg">
+        {/* Image container with background color to hide white borders */}
+        <div className="bg-[#0c0f14] relative">
+          {/* Loading spinner */}
+          {isLoading && !isLoaded && (
+            <div className="absolute inset-0 flex items-center justify-center bg-[#0c0f14]">
+              <ImSpinner8 className="animate-spin text-white w-8 h-8" />
+            </div>
+          )}
+
+          {/* Only show actual image once loaded */}
+          {isLoaded && (
+            <img
+              src={headshot.src}
+              alt={headshot.title}
+              className={`w-full ${
+                isDesktop ? "h-96 object-cover" : "h-auto object-contain"
+              }`}
+              onClick={() => setModalImage(headshot)}
+            />
+          )}
+
+          {/* Empty placeholder with same dimensions until loaded */}
+          {!isLoaded && (
+            <div
+              className={`w-full ${isDesktop ? "h-96" : "h-64"} bg-[#0c0f14]`}
+            ></div>
+          )}
+        </div>
+
+        {/* Overlay border with the exact same background color */}
+        <div
+          className="absolute inset-0 rounded-lg pointer-events-none"
+          style={{
+            boxShadow: "inset 0 0 0 2px #0c0f14",
+            border: "2px solid #0c0f14",
+          }}
+        />
+      </div>
     );
   };
 
@@ -179,8 +209,8 @@ const Headshots = () => {
         <h2 className="text-4xl font-bold text-center mb-6 text-white">
           Headshots
         </h2>
-        <div className="w-full shadow-lg backdrop-blur-sm bg-black/30 rounded-lg overflow-hidden">
-          {renderImageView(headshot, currentIndex)}
+        <div className="w-full shadow-lg backdrop-blur-sm bg-black/30 overflow-hidden">
+          {renderImageView(headshot)}
         </div>
 
         <button
@@ -232,9 +262,7 @@ const Headshots = () => {
               key={`${headshot.id}`}
               className="w-full cursor-pointer transition-all duration-500 ease-in-out"
             >
-              <div className="relative overflow-hidden rounded-lg">
-                {renderImageView(headshot, headshot.index)}
-              </div>
+              {renderImageView(headshot)}
             </div>
           ))}
         </div>
