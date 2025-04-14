@@ -1,0 +1,16 @@
+{
+    "redirects": [
+      {
+        "source": "/(.*)",
+        "has": [
+          {
+            "type": "host",
+            "value": "bensimonactor.com"
+          }
+        ],
+        "destination": "https://www.bensimonactor.com/$1",
+        "permanent": true
+      }
+    ]
+  }
+  
