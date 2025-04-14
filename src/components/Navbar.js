@@ -82,7 +82,7 @@ const Navbar = ({ onContactClick }) => {
               <FaEnvelope size={20} />
             </button>
             <a
-              href="https://www.instagram.com"
+              href="https://www.instagram.com/ben.simon.actor/"
               target="_blank"
               rel="noopener noreferrer"
               className="text-white hover:text-white transition duration-300"

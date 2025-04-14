@@ -12,7 +12,7 @@ const Footer = () => {
           </div>
           <div className="flex space-x-6">
             <a
-              href="https://www.instagram.com"
+              href="https://www.instagram.com/ben.simon.actor/"
               target="_blank"
               rel="noopener noreferrer"
               className="text-[#282c34] hover:text-[#3e4451]"
