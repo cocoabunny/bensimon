@@ -284,14 +284,8 @@ const HeroBanner = () => {
               className="text-white font-normal text-center
                        text-5xl md:text-6xl tracking-wide italic mb-3"
             >
-              Dear Henry,
+              Lets Talk>
             </h1>
-            <p
-              className="text-white font-normal text-center
-                        text-3xl md:text-4xl tracking-wide ml-8"
-            >
-              Click me
-            </p>
           </div>
         </button>
       </div>
