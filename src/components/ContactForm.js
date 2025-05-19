@@ -31,11 +31,16 @@ const ContactForm = () => {
     }));
   };
 
+  // Helper function to safely get ref value
+  const getRefValue = (ref) => {
+    return ref.current?.value || "";
+  };
+
   // Check if all optional fields are filled
   const checkAllFieldsFilled = () => {
-    const websiteValue = websiteRef.current?.value || "";
-    const ideasValue = ideasRef.current?.value || "";
-    const heardFromValue = heardFromRef.current?.value || "";
+    const websiteValue = getRefValue(websiteRef);
+    const ideasValue = getRefValue(ideasRef);
+    const heardFromValue = getRefValue(heardFromRef);
 
     const allFilled =
       websiteValue.trim() !== "" &&
@@ -56,7 +61,16 @@ const ContactForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Check if all fields are filled
+    // Check if required fields are filled
+    const fullNameValue = getRefValue(fullNameRef);
+    const emailValue = getRefValue(emailRef);
+
+    if (!fullNameValue.trim() || !emailValue.trim()) {
+      alert("Please fill in all required fields (Name and Email)");
+      return;
+    }
+
+    // Check if all optional fields are filled
     const allFieldsFilled = checkAllFieldsFilled();
 
     // If not all fields are filled, show incomplete modal first
@@ -72,12 +86,26 @@ const ContactForm = () => {
   const submitForm = async () => {
     setIsSubmitting(true);
 
+    // Safely get all form values with null checks
+    const fullNameValue = getRefValue(fullNameRef);
+    const emailValue = getRefValue(emailRef);
+    const websiteValue = getRefValue(websiteRef);
+    const ideasValue = getRefValue(ideasRef);
+    const heardFromValue = getRefValue(heardFromRef);
+
+    // Additional safety check
+    if (!fullNameValue.trim() || !emailValue.trim()) {
+      alert("Required fields cannot be empty");
+      setIsSubmitting(false);
+      return;
+    }
+
     const formSubmitData = new FormData();
-    formSubmitData.append("fullName", fullNameRef.current.value);
-    formSubmitData.append("email", emailRef.current.value);
-    formSubmitData.append("website", websiteRef.current.value || "");
-    formSubmitData.append("ideas", ideasRef.current.value || "");
-    formSubmitData.append("heardFrom", heardFromRef.current.value || "");
+    formSubmitData.append("fullName", fullNameValue);
+    formSubmitData.append("email", emailValue);
+    formSubmitData.append("website", websiteValue);
+    formSubmitData.append("ideas", ideasValue);
+    formSubmitData.append("heardFrom", heardFromValue);
     formSubmitData.append("_subject", "New portfolio contact!");
     formSubmitData.append("_captcha", "false");
 
@@ -97,12 +125,13 @@ const ContactForm = () => {
       if (response.ok) {
         setSubmitStatus("success");
         setShowModal(true);
-        // Reset the form
-        fullNameRef.current.value = "";
-        emailRef.current.value = "";
-        websiteRef.current.value = "";
-        ideasRef.current.value = "";
-        heardFromRef.current.value = "";
+        // Reset the form safely
+        if (fullNameRef.current) fullNameRef.current.value = "";
+        if (emailRef.current) emailRef.current.value = "";
+        if (websiteRef.current) websiteRef.current.value = "";
+        if (ideasRef.current) ideasRef.current.value = "";
+        if (heardFromRef.current) heardFromRef.current.value = "";
+
         setFilledFields({
           website: false,
           ideas: false,
@@ -113,6 +142,7 @@ const ContactForm = () => {
         setShowModal(true);
       }
     } catch (err) {
+      console.error("Form submission error:", err);
       setSubmitStatus("error");
       setShowModal(true);
     } finally {
