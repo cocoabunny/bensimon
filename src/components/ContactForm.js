@@ -1,270 +1,50 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useState } from "react";
 
 const ContactForm = () => {
-  const fullNameRef = useRef(null);
-  const emailRef = useRef(null);
-  const websiteRef = useRef(null);
-  const ideasRef = useRef(null);
-  const heardFromRef = useRef(null);
-
-  const [expandedFields, setExpandedFields] = useState({
-    ideas: false,
-    heardFrom: false,
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    website: "",
+    ideas: "",
+    howDidYouHear: "",
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState(null);
-  const [showModal, setShowModal] = useState(false);
-  const [showIncompleteModal, setShowIncompleteModal] = useState(false);
+  const [submitMessage, setSubmitMessage] = useState("");
 
-  // Track which fields have been filled out
-  const [filledFields, setFilledFields] = useState({
-    website: false,
-    ideas: false,
-    heardFrom: false,
-  });
-
-  const toggleExpand = (field) => {
-    setExpandedFields((prev) => ({
-      ...prev,
-      [field]: !prev[field],
-    }));
-  };
-
-  // Helper function to safely get ref value
-  const getRefValue = (ref) => {
-    return ref.current?.value || "";
-  };
-
-  // Check if all optional fields are filled
-  const checkAllFieldsFilled = () => {
-    const websiteValue = getRefValue(websiteRef);
-    const ideasValue = getRefValue(ideasRef);
-    const heardFromValue = getRefValue(heardFromRef);
-
-    const allFilled =
-      websiteValue.trim() !== "" &&
-      ideasValue.trim() !== "" &&
-      heardFromValue.trim() !== "";
-
-    return allFilled;
-  };
-
-  // Track field changes
-  const handleFieldChange = (field, value) => {
-    setFilledFields((prev) => ({
-      ...prev,
-      [field]: value.trim() !== "",
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: value,
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Check if required fields are filled
-    const fullNameValue = getRefValue(fullNameRef);
-    const emailValue = getRefValue(emailRef);
-
-    if (!fullNameValue.trim() || !emailValue.trim()) {
-      alert("Please fill in all required fields (Name and Email)");
-      return;
-    }
-
-    // Check if all optional fields are filled
-    const allFieldsFilled = checkAllFieldsFilled();
-
-    // If not all fields are filled, show incomplete modal first
-    if (!allFieldsFilled) {
-      setShowIncompleteModal(true);
-      return;
-    }
-
-    // Otherwise proceed with normal submission
-    submitForm();
-  };
-
-  const submitForm = async () => {
     setIsSubmitting(true);
 
-    // Safely get all form values with null checks
-    const fullNameValue = getRefValue(fullNameRef);
-    const emailValue = getRefValue(emailRef);
-    const websiteValue = getRefValue(websiteRef);
-    const ideasValue = getRefValue(ideasRef);
-    const heardFromValue = getRefValue(heardFromRef);
-
-    // Additional safety check
-    if (!fullNameValue.trim() || !emailValue.trim()) {
-      alert("Required fields cannot be empty");
-      setIsSubmitting(false);
-      return;
-    }
-
-    const formSubmitData = new FormData();
-    formSubmitData.append("fullName", fullNameValue);
-    formSubmitData.append("email", emailValue);
-    formSubmitData.append("website", websiteValue);
-    formSubmitData.append("ideas", ideasValue);
-    formSubmitData.append("heardFrom", heardFromValue);
-    formSubmitData.append("_subject", "New portfolio contact!");
-    formSubmitData.append("_captcha", "false");
-
     try {
-      // Fixed FormSubmit endpoint - this is the correct way to use FormSubmit.co
-      const response = await fetch(
-        "https://formsubmit.co/ajax/Ben@bensimonactor.com", // Using ajax endpoint for API submissions
-        {
-          method: "POST",
-          body: formSubmitData,
-          headers: {
-            Accept: "application/json",
-          },
-        }
-      );
+      // You can use a service like Formspree or create your own server endpoint
+      // This is a placeholder for actual form submission logic
+      // Replace with your actual form submission code
 
-      if (response.ok) {
-        setSubmitStatus("success");
-        setShowModal(true);
-        // Reset the form safely
-        if (fullNameRef.current) fullNameRef.current.value = "";
-        if (emailRef.current) emailRef.current.value = "";
-        if (websiteRef.current) websiteRef.current.value = "";
-        if (ideasRef.current) ideasRef.current.value = "";
-        if (heardFromRef.current) heardFromRef.current.value = "";
+      // For demonstration purposes - simulating submission
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
-        setFilledFields({
-          website: false,
-          ideas: false,
-          heardFrom: false,
-        });
-      } else {
-        setSubmitStatus("error");
-        setShowModal(true);
-      }
-    } catch (err) {
-      console.error("Form submission error:", err);
-      setSubmitStatus("error");
-      setShowModal(true);
+      setSubmitMessage("Thank you for your message! We'll be in touch soon.");
+      setFormData({
+        name: "",
+        email: "",
+        website: "",
+        ideas: "",
+        howDidYouHear: "",
+      });
+    } catch (error) {
+      setSubmitMessage("Something went wrong. Please try again later.");
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  // Continue with submission after incomplete modal acknowledgment
-  const continueWithIncompleteSubmission = () => {
-    setShowIncompleteModal(false);
-    submitForm();
-  };
-
-  const Modal = () => {
-    if (!showModal) return null;
-
-    const isSuccess = submitStatus === "success";
-
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white rounded-lg p-8 max-w-md mx-4 md:mx-0 text-center">
-          {isSuccess ? (
-            <>
-              <svg
-                className="w-16 h-16 text-green-500 mx-auto mb-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-              <h3 className="text-xl font-bold mb-2 text-[#0c0f14]">
-                Thank You!
-              </h3>
-              <p className="text-[#4a4f5c] mb-6">
-                Your message has been sent successfully. I'll get back to you
-                soon.
-              </p>
-            </>
-          ) : (
-            <>
-              <svg
-                className="w-16 h-16 text-red-500 mx-auto mb-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-              <h3 className="text-xl font-bold mb-2 text-[#0c0f14]">
-                Something Went Wrong
-              </h3>
-              <p className="text-[#4a4f5c] mb-6">
-                We couldn't send your message. Please try again later.
-              </p>
-            </>
-          )}
-          <button
-            onClick={() => setShowModal(false)}
-            className="bg-[#0c0f14] text-white py-2 px-6 rounded hover:bg-[#3e4451] transition-colors"
-          >
-            Close
-          </button>
-        </div>
-      </div>
-    );
-  };
-
-  // New Modal for incomplete submissions
-  const IncompleteModal = () => {
-    if (!showIncompleteModal) return null;
-
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white rounded-lg p-8 max-w-md mx-4 md:mx-0 text-center">
-          <svg
-            className="w-16 h-16 text-yellow-500 mx-auto mb-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-            />
-          </svg>
-          <h3 className="text-xl font-bold mb-2 text-[#0c0f14]">
-            You didn't tell us everything
-          </h3>
-          <p className="text-[#4a4f5c] mb-6">
-            Nonetheless, we're keen to meet you. Would you like to continue with
-            your submission?
-          </p>
-          <div className="flex justify-center space-x-4">
-            <button
-              onClick={continueWithIncompleteSubmission}
-              className="bg-[#0c0f14] text-white py-2 px-6 rounded hover:bg-[#3e4451] transition-colors"
-            >
-              Submit Anyway
-            </button>
-            <button
-              onClick={() => setShowIncompleteModal(false)}
-              className="bg-gray-200 text-[#0c0f14] py-2 px-6 rounded hover:bg-gray-300 transition-colors"
-            >
-              Go Back
-            </button>
-          </div>
-        </div>
-      </div>
-    );
   };
 
   return (
@@ -275,132 +55,137 @@ const ContactForm = () => {
         </h2>
 
         <div className="mt-12 md:flex overflow-hidden rounded-lg">
-          {/* Form section with white background and left rounded corners */}
+          {/* Form section */}
           <div
             className="md:w-1/2 p-8 bg-white rounded-l-lg"
             style={{ boxShadow: "inset 0px 0px 8px rgba(0, 0, 0, 0.05)" }}
           >
-            <form onSubmit={handleSubmit}>
-              <input
-                type="hidden"
-                name="_subject"
-                value="New portfolio contact!"
-              />
-              <input type="hidden" name="_captcha" value="false" />
-              <input type="text" name="_honey" style={{ display: "none" }} />
-
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-600 mb-1">
-                  Full Name*
-                </label>
-                <input
-                  type="text"
-                  name="fullName"
-                  ref={fullNameRef}
-                  placeholder="Enter your full name"
-                  required
-                  className="w-full bg-[#f9f9f9] border-b-2 border-[#0c0f14] px-3 py-2 text-[#282c34] focus:outline-none"
-                />
-              </div>
-
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-600 mb-1">
-                  Email*
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  ref={emailRef}
-                  placeholder="Enter your email address"
-                  required
-                  className="w-full bg-[#f9f9f9] border-b-2 border-[#0c0f14] px-3 py-2 text-[#282c34] focus:outline-none"
-                />
-              </div>
-
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-600 mb-1">
-                  Affiliated Website{" "}
-                  <span className="text-xs text-gray-500">(optional)</span>
-                </label>
-                <input
-                  type="text"
-                  name="website"
-                  ref={websiteRef}
-                  placeholder="Enter your website URL"
-                  onChange={(e) => handleFieldChange("website", e.target.value)}
-                  className="w-full bg-[#f9f9f9] border-b-2 border-[#0c0f14] px-3 py-2 text-[#282c34] focus:outline-none"
-                />
-              </div>
-
-              <div className="mb-6">
-                <div
-                  onClick={() => toggleExpand("ideas")}
-                  className="w-full bg-[#f9f9f9] border-b-2 border-[#0c0f14] px-3 py-2 text-[#282c34] cursor-pointer flex justify-between items-center"
-                >
-                  <span className="text-[#6a7085]">
-                    Tell me about your ideas{" "}
-                    <span className="text-xs text-gray-500">(optional)</span>
-                  </span>
-                  <span>{expandedFields.ideas ? "−" : "+"}</span>
-                </div>
-                {expandedFields.ideas && (
-                  <textarea
-                    name="ideas"
-                    ref={ideasRef}
-                    rows="4"
-                    maxLength="1000"
-                    onChange={(e) => handleFieldChange("ideas", e.target.value)}
-                    placeholder="Share your project ideas or vision"
-                    className="w-full mt-4 bg-[#e9eaed] border border-[#e9eaed] rounded p-3 text-[#282c34] focus:outline-none"
-                  />
-                )}
-              </div>
-
-              <div className="mb-6">
-                <div
-                  onClick={() => toggleExpand("heardFrom")}
-                  className="w-full bg-[#f9f9f9] border-b-2 border-[#0c0f14] px-3 py-2 text-[#282c34] cursor-pointer flex justify-between items-center"
-                >
-                  <span className="text-[#6a7085]">
-                    How did you hear about me?{" "}
-                    <span className="text-xs text-gray-500">(optional)</span>
-                  </span>
-                  <span>{expandedFields.heardFrom ? "−" : "+"}</span>
-                </div>
-                {expandedFields.heardFrom && (
-                  <textarea
-                    name="heardFrom"
-                    ref={heardFromRef}
-                    rows="4"
-                    maxLength="1000"
-                    onChange={(e) =>
-                      handleFieldChange("heardFrom", e.target.value)
-                    }
-                    placeholder="Let me know how you discovered my services"
-                    className="w-full mt-4 bg-[#e9eaed] border border-[#e9eaed] rounded p-3 text-[#282c34] focus:outline-none"
-                  />
-                )}
-              </div>
-
-              <div className="mb-6 p-4 bg-gray-100 rounded-lg">
-                <p className="text-sm text-gray-600">
-                  <span className="font-medium">Please note:</span> While only
-                  name and email are required, we encourage you to complete all
-                  fields for a more personalized response.
+            {submitMessage ? (
+              <div className="h-full flex flex-col items-center justify-center">
+                <p className="text-xl text-center text-green-600 font-medium">
+                  {submitMessage}
                 </p>
+                <button
+                  onClick={() => setSubmitMessage("")}
+                  className="mt-6 bg-[#0c0f14] text-white py-2 px-6 rounded hover:bg-[#3e4451] transition-colors"
+                >
+                  Send Another Message
+                </button>
               </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label
+                    htmlFor="name"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Name
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    required
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0c0f14] focus:ring-[#0c0f14] sm:text-sm"
+                    style={{ borderWidth: "1px", padding: "0.5rem" }}
+                  />
+                </div>
 
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="bg-[#0c0f14] text-white py-3 px-8 rounded hover:bg-[#3e4451] transition-colors disabled:opacity-50"
-              >
-                {isSubmitting ? "Sending..." : "Send"}
-              </button>
-            </form>
+                <div>
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0c0f14] focus:ring-[#0c0f14] sm:text-sm"
+                    style={{ borderWidth: "1px", padding: "0.5rem" }}
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="website"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Website (optional)
+                  </label>
+                  <input
+                    type="url"
+                    id="website"
+                    name="website"
+                    value={formData.website}
+                    onChange={handleChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0c0f14] focus:ring-[#0c0f14] sm:text-sm"
+                    style={{ borderWidth: "1px", padding: "0.5rem" }}
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="ideas"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Tell me about your ideas
+                  </label>
+                  <textarea
+                    id="ideas"
+                    name="ideas"
+                    value={formData.ideas}
+                    onChange={handleChange}
+                    required
+                    rows={4}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0c0f14] focus:ring-[#0c0f14] sm:text-sm"
+                    style={{ borderWidth: "1px", padding: "0.5rem" }}
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="howDidYouHear"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    How did you hear about me?
+                  </label>
+                  <textarea
+                    id="howDidYouHear"
+                    name="howDidYouHear"
+                    value={formData.howDidYouHear}
+                    onChange={handleChange}
+                    rows={2}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0c0f14] focus:ring-[#0c0f14] sm:text-sm"
+                    style={{ borderWidth: "1px", padding: "0.5rem" }}
+                  />
+                </div>
+
+                <div className="flex justify-center mt-6">
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="bg-[#0c0f14] text-white py-2 px-8 rounded hover:bg-[#3e4451] transition-colors"
+                  >
+                    {isSubmitting ? "Sending..." : "Submit"}
+                  </button>
+                </div>
+
+                <div className="mt-4 text-xs text-gray-500 text-center">
+                  Your information is secure and will never be shared with third
+                  parties.
+                </div>
+              </form>
+            )}
           </div>
 
-          {/* Image section with dark background and right rounded corners */}
+          {/* Image section */}
           <div
             className="md:w-1/2 rounded-r-lg overflow-hidden flex"
             style={{ backgroundColor: "#0c0f14" }}
@@ -411,8 +196,6 @@ const ContactForm = () => {
                 alt="Ben Simon"
                 className="h-full w-full object-cover"
               />
-
-              {/* Border overlay to cover any white edges */}
               <div
                 className="absolute inset-0 pointer-events-none rounded-r-lg"
                 style={{
@@ -424,9 +207,6 @@ const ContactForm = () => {
           </div>
         </div>
       </div>
-
-      <Modal />
-      <IncompleteModal />
     </div>
   );
 };
