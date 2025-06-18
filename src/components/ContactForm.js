@@ -11,37 +11,62 @@ const ContactForm = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState("");
+  const [isError, setIsError] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    // Auto-format website URL if it doesn't start with http:// or https://
+    let processedValue = value;
+    if (name === "website" && value && !value.match(/^https?:\/\//)) {
+      processedValue = `https://${value}`;
+    }
+
     setFormData((prevState) => ({
       ...prevState,
-      [name]: value,
+      [name]: processedValue,
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setSubmitMessage("");
+    setIsError(false);
 
     try {
-      // You can use a service like Formspree or create your own server endpoint
-      // This is a placeholder for actual form submission logic
-      // Replace with your actual form submission code
-
-      // For demonstration purposes - simulating submission
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      setSubmitMessage("Thank you for your message! We'll be in touch soon.");
-      setFormData({
-        name: "",
-        email: "",
-        website: "",
-        ideas: "",
-        howDidYouHear: "",
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
       });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setSubmitMessage("Thank you for your message! We'll be in touch soon.");
+        setIsError(false);
+        setFormData({
+          name: "",
+          email: "",
+          website: "",
+          ideas: "",
+          howDidYouHear: "",
+        });
+      } else {
+        setSubmitMessage(
+          data.error || "Something went wrong. Please try again later."
+        );
+        setIsError(true);
+      }
     } catch (error) {
-      setSubmitMessage("Something went wrong. Please try again later.");
+      console.error("Form submission error:", error);
+      setSubmitMessage(
+        "Network error. Please check your connection and try again."
+      );
+      setIsError(true);
     } finally {
       setIsSubmitting(false);
     }
@@ -62,14 +87,21 @@ const ContactForm = () => {
           >
             {submitMessage ? (
               <div className="h-full flex flex-col items-center justify-center">
-                <p className="text-xl text-center text-green-600 font-medium">
+                <p
+                  className={`text-xl text-center font-medium ${
+                    isError ? "text-red-600" : "text-green-600"
+                  }`}
+                >
                   {submitMessage}
                 </p>
                 <button
-                  onClick={() => setSubmitMessage("")}
+                  onClick={() => {
+                    setSubmitMessage("");
+                    setIsError(false);
+                  }}
                   className="mt-6 bg-[#0c0f14] text-white py-2 px-6 rounded hover:bg-[#3e4451] transition-colors"
                 >
-                  Send Another Message
+                  {isError ? "Try Again" : "Send Another Message"}
                 </button>
               </div>
             ) : (
@@ -79,7 +111,7 @@ const ContactForm = () => {
                     htmlFor="name"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Name
+                    Name *
                   </label>
                   <input
                     type="text"
@@ -88,7 +120,8 @@ const ContactForm = () => {
                     value={formData.name}
                     onChange={handleChange}
                     required
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0c0f14] focus:ring-[#0c0f14] sm:text-sm"
+                    disabled={isSubmitting}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0c0f14] focus:ring-[#0c0f14] sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                     style={{ borderWidth: "1px", padding: "0.5rem" }}
                   />
                 </div>
@@ -98,7 +131,7 @@ const ContactForm = () => {
                     htmlFor="email"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Email Address
+                    Email Address *
                   </label>
                   <input
                     type="email"
@@ -107,7 +140,8 @@ const ContactForm = () => {
                     value={formData.email}
                     onChange={handleChange}
                     required
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0c0f14] focus:ring-[#0c0f14] sm:text-sm"
+                    disabled={isSubmitting}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0c0f14] focus:ring-[#0c0f14] sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                     style={{ borderWidth: "1px", padding: "0.5rem" }}
                   />
                 </div>
@@ -120,12 +154,14 @@ const ContactForm = () => {
                     Website (optional)
                   </label>
                   <input
-                    type="url"
+                    type="text"
                     id="website"
                     name="website"
                     value={formData.website}
                     onChange={handleChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0c0f14] focus:ring-[#0c0f14] sm:text-sm"
+                    disabled={isSubmitting}
+                    placeholder="example.com"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0c0f14] focus:ring-[#0c0f14] sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                     style={{ borderWidth: "1px", padding: "0.5rem" }}
                   />
                 </div>
@@ -135,7 +171,7 @@ const ContactForm = () => {
                     htmlFor="ideas"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Tell me about your ideas
+                    Tell me about your ideas *
                   </label>
                   <textarea
                     id="ideas"
@@ -143,8 +179,9 @@ const ContactForm = () => {
                     value={formData.ideas}
                     onChange={handleChange}
                     required
+                    disabled={isSubmitting}
                     rows={4}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0c0f14] focus:ring-[#0c0f14] sm:text-sm"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0c0f14] focus:ring-[#0c0f14] sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                     style={{ borderWidth: "1px", padding: "0.5rem" }}
                   />
                 </div>
@@ -161,8 +198,9 @@ const ContactForm = () => {
                     name="howDidYouHear"
                     value={formData.howDidYouHear}
                     onChange={handleChange}
+                    disabled={isSubmitting}
                     rows={2}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0c0f14] focus:ring-[#0c0f14] sm:text-sm"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0c0f14] focus:ring-[#0c0f14] sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                     style={{ borderWidth: "1px", padding: "0.5rem" }}
                   />
                 </div>
@@ -171,7 +209,7 @@ const ContactForm = () => {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="bg-[#0c0f14] text-white py-2 px-8 rounded hover:bg-[#3e4451] transition-colors"
+                    className="bg-[#0c0f14] text-white py-2 px-8 rounded hover:bg-[#3e4451] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isSubmitting ? "Sending..." : "Submit"}
                   </button>
