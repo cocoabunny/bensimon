@@ -35,6 +35,8 @@ const ContactForm = () => {
     setIsError(false);
 
     try {
+      console.log("Submitting form data:", formData);
+
       const response = await fetch("/api/contact", {
         method: "POST",
         headers: {
@@ -43,7 +45,9 @@ const ContactForm = () => {
         body: JSON.stringify(formData),
       });
 
+      console.log("Response status:", response.status);
       const data = await response.json();
+      console.log("Response data:", data);
 
       if (response.ok) {
         setSubmitMessage("Thank you for your message! We'll be in touch soon.");
