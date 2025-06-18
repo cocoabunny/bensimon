@@ -7,6 +7,7 @@ import ContactForm from "./components/ContactForm";
 import Footer from "./components/Footer";
 import Modal from "./components/Modal";
 import { SpeedInsights } from "@vercel/speed-insights/react";
+import { Analytics } from "@vercel/analytics/react";
 
 function App() {
   const [selectedImage, setSelectedImage] = useState(null);
@@ -26,6 +27,7 @@ function App() {
 
   return (
     <div className="font-sans">
+      <Analytics />
       <Navbar onContactClick={scrollToContact} />
       <HeroBanner />
       <Headshots openModal={openModal} />
